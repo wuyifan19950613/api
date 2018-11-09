@@ -26,7 +26,6 @@ app.post('/api/user/register', (req, res) => {
     body = JSON.parse(body);
     const userName = body.userName;
     const password = body.password;
-    console.log(userName, password)
     if (!userName || !password) {
       const data = {
         code: 201,
@@ -105,7 +104,6 @@ app.get('/api/grabbing/data', (req, res) => {
       html += data;
     });
     res.on('end', () => {
-      console.log(html);
     })
   })
 });
@@ -140,8 +138,14 @@ app.post('/api/add/goods', (req, res) => {
 })
 // 根据分类查询商品
 app.get('/api/find/typeCommodity', (req, res)=> {
-  const type = req.query.type;
-  mongodb.find('commodity',{type: type}, (err, msg) => {
+  let data = {};
+
+  if(req.query.type) {
+    data = {
+      type : req.query.type,
+    };
+  }
+  mongodb.find('commodity', data, (err, msg) => {
     if(err) {
       return err
     }
@@ -154,7 +158,6 @@ app.get('/api/find/typeCommodity', (req, res)=> {
 // 根据id查询商品
 app.get('/api/find/CommodityId', (req, res)=> {
   mongodb.find('commodity',{"_id": ObjectId(req.query.id)}, (err, msg) => {
-    console.log(msg);
     if(err) {
       return err
     }
@@ -162,6 +165,36 @@ app.get('/api/find/CommodityId', (req, res)=> {
       code: 200,
       data: msg[0],
     })
+  });
+});
+
+// 模糊查询
+app.get('/api/vaguefind/Commodity', (req, res) => {
+  const data ={
+    title: new RegExp(req.query.title),
+  }
+  mongodb.find('commodity', data, (err, msg)=> {
+    if (err) {
+      return err
+    }
+    if (req.query.id) {
+      let index = '';
+      for (let i = 0; i < msg.length; i+=1) {
+        if (req.query.id == msg[i]._id) {
+          index = i;
+          msg = msg.splice(1,1);
+        }
+        res.send({
+          code: 200,
+          data: msg,
+        })
+      }
+    } else {
+      res.send({
+        code: 200,
+        data: msg,
+      })
+    }
   });
 });
 app.listen(3000, () => {
