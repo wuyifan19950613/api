@@ -12,6 +12,7 @@ var https = require("https");
 var superagent = require('superagent');
 var cheerio = require('cheerio');
 const ObjectId = require('mongodb').ObjectId;
+const client = require('./taobaoApi.js')
 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(cors());
@@ -149,6 +150,21 @@ app.get('/api/find/typeCommodity', (req, res)=> {
       type : req.query.type,
     };
   }
+  client.execute('taobao.tbk.item.get', {
+    'fields':'num_iid,title,pict_url,small_images,reserve_price,zk_final_price,user_type,provcity,item_url,seller_id,volume,nick',
+  	'q':'女装',
+  	'platform':'2',
+  	'page_no':'1',
+  	'page_size':'20'
+  }, (err, res)=> {
+    if (err){
+      console.log(err)
+      console.log('错误')
+    } else {
+      console.log(res.results.n_tbk_item);
+      console.log('成功')
+    }
+  })
   mongodb.find('commodity', data, (err, msg) => {
     if(err) {
       return res.send({code: 201, data: err});
