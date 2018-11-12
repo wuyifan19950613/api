@@ -74,7 +74,14 @@ app.post('/api/user/login', (req, res) => {
     let newPas = md5.update(password).digest("hex");
     mongodb.find('userList',{userName: userName}, (err, msg) => {
       if(err) {
-        return err;
+        return res.send({code: 201, data: err});
+      }
+      if (JSON.stringify(msg) == '[]') {
+        res.send({
+          code: 201,
+          message:'账号不存在',
+        });
+        return false;
       }
       if (newPas === msg[0].password) {
         res.send({
@@ -85,6 +92,7 @@ app.post('/api/user/login', (req, res) => {
             token:msg[0]._id,
           }
         });
+        return false;
       } else {
         res.send({
           code: 201,
@@ -118,10 +126,7 @@ app.post('/api/add/goods', (req, res) => {
     body = JSON.parse(body);
     mongodb.find('commodity',{title: body.title}, (err, msg) => {
       if (msg.length > 0) {
-        res.send({
-          code: 202,
-          message:'数据已存在',
-        });
+        return res.send({code: 202,message:'数据已存在',});
       } else {
         mongodb.insertOne('commodity', body, (err, msg)=> {
           if(err) {
@@ -139,7 +144,6 @@ app.post('/api/add/goods', (req, res) => {
 // 根据分类查询商品
 app.get('/api/find/typeCommodity', (req, res)=> {
   let data = {};
-
   if(req.query.type) {
     data = {
       type : req.query.type,
@@ -147,23 +151,21 @@ app.get('/api/find/typeCommodity', (req, res)=> {
   }
   mongodb.find('commodity', data, (err, msg) => {
     if(err) {
-      return err
+      return res.send({code: 201, data: err});
+    } else {
+      return res.send({code: 200,data: msg});
     }
-    res.send({
-      code: 200,
-      data: msg,
-    })
   });
 });
 // 根据id查询商品
 app.get('/api/find/CommodityId', (req, res)=> {
   mongodb.find('commodity',{"_id": ObjectId(req.query.id)}, (err, msg) => {
     if(err) {
-      return err
+      return res.send({code: 201, data: err});
     }
     res.send({
       code: 200,
-      data: msg[0],
+      data: msg[0]
     })
   });
 });
@@ -175,7 +177,7 @@ app.get('/api/vaguefind/Commodity', (req, res) => {
   }
   mongodb.find('commodity', data, (err, msg)=> {
     if (err) {
-      return err
+      return res.send({code: 201, data: err});
     }
     if (req.query.id) {
       let index = '';
@@ -184,19 +186,13 @@ app.get('/api/vaguefind/Commodity', (req, res) => {
           index = i;
           msg = msg.splice(1,1);
         }
-        res.send({
-          code: 200,
-          data: msg,
-        })
+        return res.send({code: 200,data: msg})
       }
     } else {
-      res.send({
-        code: 200,
-        data: msg,
-      })
+      return res.send({code: 200,data: msg,})
     }
   });
 });
-app.listen(3000, () => {
-    console.log('正在监听端口3000,http://192.168.0.16:3000');
+app.listen(3000,() => {
+    console.log('服务启动成功');
 })

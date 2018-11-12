@@ -6,16 +6,17 @@
 //
 // });
 const common = {
-  setName: 'text',
+  setName: 'shop',
   pageSize: 1,
 }
 function connectDB(cb) {
   this.settings  = {
-    url: 'mongodb://localhost:27017/',
+    url: 'mongodb://127.0.0.1:27017/',
     MongoClient: require('mongodb').MongoClient,
   };
-  this.settings.MongoClient.connect(this.settings.url, function(err, db){
+  this.settings.MongoClient.connect(this.settings.url,{useNewUrlParser:true},function(err, db){
     if (err) {
+      console.log(err);
       return err;
     }
     console.log("连接success");
