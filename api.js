@@ -150,21 +150,7 @@ app.get('/api/find/typeCommodity', (req, res)=> {
       type : req.query.type,
     };
   }
-  client.execute('taobao.tbk.item.get', {
-    'fields':'num_iid,title,pict_url,small_images,reserve_price,zk_final_price,user_type,provcity,item_url,seller_id,volume,nick',
-  	'q':'女装',
-  	'platform':'2',
-  	'page_no':'1',
-  	'page_size':'20'
-  }, (err, res)=> {
-    if (err){
-      console.log(err)
-      console.log('错误')
-    } else {
-      console.log(res.results.n_tbk_item);
-      console.log('成功')
-    }
-  })
+
   mongodb.find('commodity', data, (err, msg) => {
     if(err) {
       return res.send({code: 201, data: err});
@@ -173,6 +159,57 @@ app.get('/api/find/typeCommodity', (req, res)=> {
     }
   });
 });
+
+// 	淘宝客商品查询 如：女装
+app.get('/api/taobao/CommodityFind', (req, res)=> {
+  client.execute('taobao.tbk.dg.item.coupon.get', {
+  	'adzone_id':'57801250099',
+    'q': `${req.query.commodityName}`,
+    'platform':'2',
+    'page_no': `${req.query.pageNum}`,
+    'page_size': `${req.query.pageSize}`,
+  }, (err, msg)=> {
+    if (err){
+      return res.send({code:201, err: err});
+    } else {
+      return res.send({code:200, msg: msg});
+    }
+  })
+});
+
+// 淘宝商品详情（简版）
+app.get('/api/taobao/CommodityDetails', (req, res) => {
+  client.execute('taobao.tbk.item.info.get', {
+  	'num_iids': `${req.query.num_iid}`,
+  	'platform':'2',
+  }, (err, msg)=> {
+    if (err) {
+      return res.send({code:201, err: err});
+    } else {
+      return res.send({code:200, msg: msg.results.n_tbk_item[0]});
+    }
+  })
+});
+// 淘口令生成
+app.get('/api/taobao/pwdCreate', (req, res)=> {
+  client.execute('taobao.tbk.tpwd.create', {
+  	'user_id':'1746586102',
+  	'text':`${req.query.title}`,
+  	'url': `${req.query.url}`,
+  	'logo':`${req.query.logo}`,
+  }, function(err, msg) {
+    if (err) {
+      return res.send({code:201, err: err});
+    } else {
+      return res.send({code:200, msg: msg});
+    }
+  })
+})
+
+
+
+
+
 // 根据id查询商品
 app.get('/api/find/CommodityId', (req, res)=> {
   mongodb.find('commodity',{"_id": ObjectId(req.query.id)}, (err, msg) => {
