@@ -204,6 +204,22 @@ app.get('/api/taobao/pwdCreate', (req, res)=> {
       return res.send({code:200, msg: msg});
     }
   })
+});
+
+// 淘宝客物料下行-导购
+app.get('/api/taobao/optimusMaterial', (req, res)=> {
+  client.execute('taobao.tbk.dg.optimus.material', {
+  	'page_size': `${req.query.pageSize}`,
+  	'adzone_id':'57801250099',
+  	'page_no': `${req.query.pageNum}`,
+  	'material_id': `${req.query.material_id}`,
+  }, function(err, msg) {
+    if (err) {
+      return res.send({code:201, err: err});
+    } else {
+      return res.send({code:200, msg: msg});
+    }
+  })
 })
 
 
