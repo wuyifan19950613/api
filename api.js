@@ -13,6 +13,7 @@ var superagent = require('superagent');
 var cheerio = require('cheerio');
 const ObjectId = require('mongodb').ObjectId;
 const client = require('./taobaoApi.js')
+const base = require('./common.js')
 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(cors());
@@ -179,6 +180,11 @@ app.get('/api/taobao/CommodityFind', (req, res)=> {
 
 // 淘宝商品详情（简版）
 app.get('/api/taobao/CommodityDetails', (req, res) => {
+
+
+
+
+
   client.execute('taobao.tbk.item.info.get', {
   	'num_iids': `${req.query.num_iid}`,
   	'platform':'2',
@@ -190,6 +196,27 @@ app.get('/api/taobao/CommodityDetails', (req, res) => {
     }
   })
 });
+// 淘宝商品猜你喜欢（简版）
+app.get('/api/taobao/guessLike', (req, res)=> {
+  client.execute('taobao.tbk.item.guess.like', {
+    'adzone_id':'57801250099',
+    'os': base.phoneModel(req),
+    'ip': req.header('x-forwarded-for') || req.connection.remoteAddress,
+    'ua': `${req.query.ua}`,
+    'net': `wifi`,
+    'page_size': `${req.query.pageSize}`,
+    'page_no': `${req.query.pageNum}`,
+  }, (err, msg)=> {
+    if (err) {
+      return res.send({code:201, err: err});
+    } else {
+      return res.send({code:200, msg: msg.results.n_tbk_item[0]});
+    }
+  })
+})
+
+
+
 // 淘口令生成
 app.get('/api/taobao/pwdCreate', (req, res)=> {
   client.execute('taobao.tbk.tpwd.create', {
@@ -213,6 +240,23 @@ app.get('/api/taobao/optimusMaterial', (req, res)=> {
   	'adzone_id':'57801250099',
   	'page_no': `${req.query.pageNum}`,
   	'material_id': `${req.query.material_id}`,
+  }, function(err, msg) {
+    if (err) {
+      return res.send({code:201, err: err});
+    } else {
+      return res.send({code:200, msg: msg});
+    }
+  })
+});
+app.get('/api/taobao/materialOptional', (req, res)=> {
+  client.execute('taobao.tbk.dg.material.optional', {
+    'page_size': `${req.query.pageSize}`,
+    'page_no': `${req.query.pageNum}`,
+    'adzone_id':'57801250099',
+    'platform': '2',
+    'sort': '_des,tk_rate',
+    'q': `${req.query.searchName}`,
+    'has_coupon': 'true',
   }, function(err, msg) {
     if (err) {
       return res.send({code:201, err: err});
@@ -262,6 +306,6 @@ app.get('/api/vaguefind/Commodity', (req, res) => {
     }
   });
 });
-app.listen(3000,() => {
+app.listen(3000,'0.0.0.0',() => {
     console.log('服务启动成功');
 })
