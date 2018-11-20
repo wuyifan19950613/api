@@ -6,6 +6,7 @@ const cors = require('cors');
 const crypto = require("crypto");
 const mongodb = require('./mongodb.js');
 const url = require('url');
+var request = require('request');
 //解析表单的插件
 const bodyParser = require('body-parser');
 var https = require("https");
@@ -14,9 +15,98 @@ var cheerio = require('cheerio');
 const ObjectId = require('mongodb').ObjectId;
 const client = require('./taobaoApi.js')
 const base = require('./common.js')
-
+var sha1 = require('sha1');
+var xmlreader = require("xmlreader");
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(cors());
+
+const config = {
+  wechat:{
+    appID:'wx26408a8b0b607e01', //填写你自己的appID
+    appSecret:'edec6e5b252b8d1cac4bc1d32b986453', //填写你自己的appSecret
+    token:'XiaoHuanYouJuan' //填写你自己的token
+  }
+};
+function getXMLNodeValue(node_name,xml){
+    var tmp = xml.split("<"+node_name+">");
+    var _tmp = tmp[1].split("</"+node_name+">");
+    return _tmp[0];
+}
+function url_encode(url){
+    url = encodeURIComponent(url);
+    url = url.replace(/\%3A/g, ":");
+    url = url.replace(/\%2F/g, "/");
+    url = url.replace(/\%3F/g, "?");
+    url = url.replace(/\%3D/g, "=");
+    url = url.replace(/\%26/g, "&");
+
+    return url;
+}
+
+// http://wuyifan.free.idcfengye.com
+app.get('/api/weixin', (req, res) => {
+  console.log('21312')
+  var token = config.wechat.token;
+  var signature = req.query.signature;
+  var nonce = req.query.nonce;
+  var timestamp = req.query.timestamp;
+  var echostr = req.query.echostr;
+  var str = [token,timestamp,nonce].sort().join('');
+  var sha = sha1(str);
+  if (signature === sha) {
+    return res.send(echostr);
+  } else {
+    console.log('error');
+  }
+});
+app.post('/api/weixin', (req, res) => {
+  var _da;
+  const resData = res;
+  console.log('1231')
+  req.on("data",function(data){
+    /*微信服务器传过来的是xml格式的，是buffer类型，因为js本身只有字符串数据类型，所以需要通过toString把xml转换为字符串*/
+    _da = data.toString("utf-8");
+  });
+  req.on("end",function(){
+    var text = '';
+    // xml2js.parseString(_da, (err, res) => {
+    //   console.log(res.xml.Content);
+    // });
+  xmlreader.read(_da, (err, res) => {
+    if(null !== err ){
+      return '';
+    }
+    text = res.xml.Content.text();
+    var xxx = 'http://shop.xiaohuanzi.cn/commodity/listGoods?name='+text;
+    var url = 'http://api.t.sina.com.cn/short_url/shorten.json?source=2815391962&url_long='+url_encode(xxx)
+    console.log(url);
+    var duanUrl = '';
+    request(url, (err, res, body)=> {
+      if (!err && res.statusCode == 200) {
+         console.log() // Show the HTML for the baidu homepage.
+         duanUrl = JSON.parse(body)[0].url_short;
+         var ToUserName = getXMLNodeValue('ToUserName',_da);
+         var FromUserName = getXMLNodeValue('FromUserName',_da);
+         var CreateTime = getXMLNodeValue('CreateTime',_da);
+         var MsgType = getXMLNodeValue('MsgType',_da);
+         var Content = getXMLNodeValue('Content',_da);
+         var MsgId = getXMLNodeValue('MsgId',_da);
+         var html ='';
+         html +='<xml>';
+         html +='<ToUserName>'+FromUserName+'</ToUserName>';
+         html +='<FromUserName>'+ToUserName+'</FromUserName>';
+         html +='<CreateTime>'+CreateTime+'</CreateTime>';
+         html +='<MsgType>'+MsgType+'</MsgType> ';
+         html +=`<Content>亲，已为您找到“${text}”的相关商品\r\n\r\n点击购买☛购买☛${duanUrl}</Content>`;
+         html +='</xml>';
+         resData.send(html);
+       }
+     });
+    });
+  });
+})
+
+
 
 // 新增用户名
 app.post('/api/user/register', (req, res) => {
@@ -180,11 +270,6 @@ app.get('/api/taobao/CommodityFind', (req, res)=> {
 
 // 淘宝商品详情（简版）
 app.get('/api/taobao/CommodityDetails', (req, res) => {
-
-
-
-
-
   client.execute('taobao.tbk.item.info.get', {
   	'num_iids': `${req.query.num_iid}`,
   	'platform':'2',
@@ -213,7 +298,9 @@ app.get('/api/taobao/guessLike', (req, res)=> {
       return res.send({code:200, msg: msg.results.n_tbk_item[0]});
     }
   })
-})
+});
+
+
 
 
 
