@@ -45,7 +45,6 @@ function url_encode(url){
 
 // http://wuyifan.free.idcfengye.com
 app.get('/api/weixin', (req, res) => {
-  console.log('21312')
   var token = config.wechat.token;
   var signature = req.query.signature;
   var nonce = req.query.nonce;
@@ -62,7 +61,6 @@ app.get('/api/weixin', (req, res) => {
 app.post('/api/weixin', (req, res) => {
   var _da;
   const resData = res;
-  console.log('1231')
   req.on("data",function(data){
     /*微信服务器传过来的是xml格式的，是buffer类型，因为js本身只有字符串数据类型，所以需要通过toString把xml转换为字符串*/
     _da = data.toString("utf-8");
@@ -77,27 +75,35 @@ app.post('/api/weixin', (req, res) => {
       return '';
     }
     text = res.xml.Content.text();
+    var ToUserName = getXMLNodeValue('ToUserName',_da);
+    var FromUserName = getXMLNodeValue('FromUserName',_da);
+    var CreateTime = getXMLNodeValue('CreateTime',_da);
+    var MsgType = getXMLNodeValue('MsgType',_da);
+    var Content = getXMLNodeValue('Content',_da);
+    var MsgId = getXMLNodeValue('MsgId',_da);
+    var html ='';
+    if (text == '【收到不支持的消息类型，暂无法显示】') {
+      html +='<xml>';
+      html +='<ToUserName>'+FromUserName+'</ToUserName>';
+      html +='<FromUserName>'+ToUserName+'</FromUserName>';
+      html +='<CreateTime>'+CreateTime+'</CreateTime>';
+      html +='<MsgType>'+MsgType+'</MsgType> ';
+      html +=`<Content>(≖ᴗ≖)✧ Hello，我是小欢有劵\r\n请按以下说明领取优惠券。\r\n\r\n❶直接分享给我可以自动查找优惠，90%商品都能找到，详情点击菜单帮助！\r\n\r\n❷发送“XXX”会给您查找有优惠券的商品，比如：卫衣。\r\n\r\n❸直接打开小欢有劵官网：http://shop.xiaohuanzi.cn</Content>`;
+      html +='</xml>';
+      return resData.send(html);
+    }
     var xxx = 'http://shop.xiaohuanzi.cn/commodity/listGoods?name='+text;
     var url = 'http://api.t.sina.com.cn/short_url/shorten.json?source=2815391962&url_long='+url_encode(xxx)
-    console.log(url);
     var duanUrl = '';
     request(url, (err, res, body)=> {
       if (!err && res.statusCode == 200) {
-         console.log() // Show the HTML for the baidu homepage.
          duanUrl = JSON.parse(body)[0].url_short;
-         var ToUserName = getXMLNodeValue('ToUserName',_da);
-         var FromUserName = getXMLNodeValue('FromUserName',_da);
-         var CreateTime = getXMLNodeValue('CreateTime',_da);
-         var MsgType = getXMLNodeValue('MsgType',_da);
-         var Content = getXMLNodeValue('Content',_da);
-         var MsgId = getXMLNodeValue('MsgId',_da);
-         var html ='';
          html +='<xml>';
          html +='<ToUserName>'+FromUserName+'</ToUserName>';
          html +='<FromUserName>'+ToUserName+'</FromUserName>';
          html +='<CreateTime>'+CreateTime+'</CreateTime>';
          html +='<MsgType>'+MsgType+'</MsgType> ';
-         html +=`<Content>亲，已为您找到“${text}”的相关商品\r\n\r\n点击购买☛购买☛${duanUrl}</Content>`;
+         html +=`<Content>兄dei，已为您找到“${text}”的相关宝贝优惠卷\r\n\r\n点击查看☛${duanUrl}</Content>`;
          html +='</xml>';
          resData.send(html);
        }
