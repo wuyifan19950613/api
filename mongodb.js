@@ -78,7 +78,7 @@ const base = {
   deleteOne: (collectionName, data , cb) => {
     connectDB((err, db) => {
       const dbo = db.db(common.setName);
-      dbo.collection(collectionName).deleteOne(data, ()=> {
+      dbo.collection(collectionName).deleteOne(data, (err, res)=> {
         if (err) throw err;
         console.log("删除数据成功");
         cb(err, res);

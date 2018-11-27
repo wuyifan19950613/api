@@ -17,7 +17,8 @@ const client = require('./taobaoApi.js')
 const base = require('./common.js')
 var sha1 = require('sha1');
 var xmlreader = require("xmlreader");
-app.use(bodyParser.urlencoded({ extended: false }))
+var shoppingcart = require('./modules/localInterface'); //购物车路由
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cors());
 
 const config = {
@@ -42,9 +43,22 @@ function url_encode(url){
 
     return url;
 }
-
+// 自动回复处理
+function recProcess(Wxcofig,resData) {
+  var html ='';
+  html +='<xml>';
+  html +='<ToUserName>'+Wxcofig.FromUserName+'</ToUserName>';
+  html +='<FromUserName>'+Wxcofig.ToUserName+'</FromUserName>';
+  html +='<CreateTime>'+Wxcofig.CreateTime+'</CreateTime>';
+  html +='<MsgType><![CDATA[text]]></MsgType> ';
+  html +=`<Content>(≖ᴗ≖)✧ Hello，我是小欢有劵\r\n请按以下说明领取优惠券。\r\n\r\n❶直接发送宝贝标题给我，可以自动查找优惠，90%商品都能找到，详情点击菜单帮助！\r\n\r\n❷发送“XXX”会给您查找有优惠券的商品，比如：卫衣。\r\n\r\n❸直接打开小欢有劵官网：http://shop.xiaohuanzi.cn</Content>`;
+  html +='</xml>';
+  return resData.send(html);
+}
+shoppingcart(app);
 // http://wuyifan.free.idcfengye.com
 app.get('/api/weixin', (req, res) => {
+  console.log('get')
   var token = config.wechat.token;
   var signature = req.query.signature;
   var nonce = req.query.nonce;
@@ -67,52 +81,47 @@ app.post('/api/weixin', (req, res) => {
   });
   req.on("end",function(){
     var text = '';
-    // xml2js.parseString(_da, (err, res) => {
-    //   console.log(res.xml.Content);
-    // });
   xmlreader.read(_da, (err, res) => {
     if(null !== err ){
       return '';
     }
-    text = res.xml.Content.text();
-    var ToUserName = getXMLNodeValue('ToUserName',_da);
-    var FromUserName = getXMLNodeValue('FromUserName',_da);
-    var CreateTime = getXMLNodeValue('CreateTime',_da);
-    var MsgType = getXMLNodeValue('MsgType',_da);
-    var Content = getXMLNodeValue('Content',_da);
-    var MsgId = getXMLNodeValue('MsgId',_da);
-    var html ='';
-    if (text == '【收到不支持的消息类型，暂无法显示】') {
-      html +='<xml>';
-      html +='<ToUserName>'+FromUserName+'</ToUserName>';
-      html +='<FromUserName>'+ToUserName+'</FromUserName>';
-      html +='<CreateTime>'+CreateTime+'</CreateTime>';
-      html +='<MsgType>'+MsgType+'</MsgType> ';
-      html +=`<Content>(≖ᴗ≖)✧ Hello，我是小欢有劵\r\n请按以下说明领取优惠券。\r\n\r\n❶直接分享给我可以自动查找优惠，90%商品都能找到，详情点击菜单帮助！\r\n\r\n❷发送“XXX”会给您查找有优惠券的商品，比如：卫衣。\r\n\r\n❸直接打开小欢有劵官网：http://shop.xiaohuanzi.cn</Content>`;
-      html +='</xml>';
-      return resData.send(html);
+    const Wxcofig = {
+      ToUserName: getXMLNodeValue('ToUserName',_da),
+      FromUserName: getXMLNodeValue('FromUserName',_da),
+      CreateTime: getXMLNodeValue('CreateTime',_da),
+      MsgType: getXMLNodeValue('MsgType',_da),
     }
-    var xxx = 'http://shop.xiaohuanzi.cn/commodity/listGoods?name='+text;
-    var url = 'http://api.t.sina.com.cn/short_url/shorten.json?source=2815391962&url_long='+url_encode(xxx)
-    var duanUrl = '';
-    request(url, (err, res, body)=> {
-      if (!err && res.statusCode == 200) {
-         duanUrl = JSON.parse(body)[0].url_short;
-         html +='<xml>';
-         html +='<ToUserName>'+FromUserName+'</ToUserName>';
-         html +='<FromUserName>'+ToUserName+'</FromUserName>';
-         html +='<CreateTime>'+CreateTime+'</CreateTime>';
-         html +='<MsgType>'+MsgType+'</MsgType> ';
-         html +=`<Content>兄dei，已为您找到“${text}”的相关宝贝优惠卷\r\n\r\n点击查看☛${duanUrl}</Content>`;
-         html +='</xml>';
-         resData.send(html);
-       }
-     });
+    if (res.xml.MsgType.text() == 'image' || res.xml.MsgType.text() == 'event' || res.xml.MsgType.text() == 'voice') {
+        recProcess(Wxcofig,resData);
+        return false;
+    }
+    if (res.xml.MsgType.text() == 'text') {
+      text = res.xml.Content.text();
+      if (text == '【收到不支持的消息类型，暂无法显示】'|| text.indexOf("/:") != -1) {
+        recProcess(Wxcofig,resData);
+        return false;
+      }
+      var xxx = 'http://shop.xiaohuanzi.cn/commodity/listGoods?name='+text;
+      var url = 'http://api.t.sina.com.cn/short_url/shorten.json?source=2815391962&url_long='+url_encode(xxx)
+      var duanUrl = '';
+      request(url, (err, res, body)=> {
+        if (!err && res.statusCode == 200) {
+          var html ='';
+           duanUrl = JSON.parse(body)[0].url_short;
+           html +='<xml>';
+           html +='<ToUserName>'+Wxcofig.FromUserName+'</ToUserName>';
+           html +='<FromUserName>'+Wxcofig.ToUserName+'</FromUserName>';
+           html +='<CreateTime>'+Wxcofig.CreateTime+'</CreateTime>';
+           html +='<MsgType>'+Wxcofig.MsgType+'</MsgType> ';
+           html +=`<Content>兄dei，已为您找到“${text}”的相关宝贝优惠卷\r\n\r\n点击查看☛${duanUrl}</Content>`;
+           html +='</xml>';
+           return resData.send(html);
+         }
+       });
+      }
     });
   });
 })
-
-
 
 // 新增用户名
 app.post('/api/user/register', (req, res) => {
@@ -204,12 +213,13 @@ app.post('/api/user/login', (req, res) => {
 // 抓取数据
 app.get('/api/grabbing/data', (req, res) => {
   const url = req.query.url;
-  https.get(url, (res) => {
+  https.get(url, (msg) => {
     var html = "";
-    res.on('data', (data) => {
+    msg.on('data', (data) => {
       html += data;
+      console.log(msg);
     });
-    res.on('end', () => {
+    msg.on('end', () => {
     })
   })
 });
@@ -247,7 +257,6 @@ app.get('/api/find/typeCommodity', (req, res)=> {
       type : req.query.type,
     };
   }
-
   mongodb.find('commodity', data, (err, msg) => {
     if(err) {
       return res.send({code: 201, data: err});
