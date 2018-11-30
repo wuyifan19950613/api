@@ -35,4 +35,37 @@ module.exports = function(app) {
       }
     });
   });
+  app.post('/api/addNavigation', (req, res)=> {
+    let body = "";
+    req.on('data', (chunk) => {
+      body += chunk;
+    });
+    req.on('end', () => {
+      body = JSON.parse(body);
+      mongodb.insertOne('navigation', {title: body.title, navId: body.navId}, (err, msg)=> {
+        if (err) {
+          return err;
+        }
+        res.send({});
+      });
+    });
+  });
+  app.get('/api/getNavigation', (req, res)=> {
+    mongodb.find('navigation', {}, (err, msg) => {
+      if(err) {
+        return res.send({code: 201, data: err});
+      } else {
+        return res.send({code: 200,data: msg});
+      }
+    });
+  });
+  app.delete('/api/removeNavigation',(req, res)=> {
+    mongodb.deleteOne('navigation', {"_id": ObjectId(req.query.id)}, (err, msg) => {
+      if(err) {
+        return res.send({code: 201, data: err});
+      } else {
+        return res.send({code: 200,data: msg});
+      }
+    });
+  });
 }
