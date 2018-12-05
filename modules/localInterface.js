@@ -1,5 +1,7 @@
 const mongodb = require('../mongodb.js');
 const ObjectId = require('mongodb').ObjectId;
+const https = require("https");
+const iconv = require("iconv-lite");
 module.exports = function(app) {
   app.post('/api/addIndexBanner', (req, res)=> {
     let body = "";
@@ -16,7 +18,6 @@ module.exports = function(app) {
       });
     });
   });
-
   app.get('/api/getIndexBanner', (req, res)=> {
     mongodb.find('banner', {}, (err, msg) => {
       if(err) {
@@ -67,5 +68,23 @@ module.exports = function(app) {
         return res.send({code: 200,data: msg});
       }
     });
+  });
+  // 获取商品id
+  app.get('/api/getcommodityId',(req, res) => {
+    const url = req.query.url;
+    https.get(url, (res)=> {
+      var datas = [];
+      var size = 0;
+      res.on('data', function (data) {
+       datas.push(data);
+       size += data.length;
+     });
+     res.on("end", function () {
+      var buff = Buffer.concat(datas, size);
+      var result = iconv.decode(buff, "utf8");//转码//var result = buff.toString();//不需要转编码,直接tostring
+      var id = result.substring(result.indexOf("https://a.m.taobao.com/i")+1,result.indexOf('.htm?')).replace(/[^0-9]/ig,"");;
+      console.log(id);
+      });
+    })
   });
 }

@@ -3,6 +3,9 @@
   "author": "xuteng.xt@alibaba-inc.com",
   "version": "2.0.5",
   "description": "Taobao Open API & Message Client.",
+  "scripts": {
+    "phantomjs":"node_modules/.bin/phantomjs"
+  },
   "keywords": [
     "top",
     "taobao",
@@ -10,6 +13,7 @@
     "top client"
   ],
   "main": "index.js",
+  "phantomjs":"node_modules/.bin/phantomjs",
   "dependencies": {
     "cheerio": "^1.0.0-rc.2",
     "cors": "^2.8.5",
@@ -31,5 +35,8 @@
   },
   "publishConfig": {
     "registry": "http://registry.npm.alibaba-inc.com"
+  },
+  "devDependencies": {
+    "phantomjs": "^2.1.7+deprecated"
   }
 }
