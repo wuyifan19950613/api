@@ -51,7 +51,7 @@ function recProcess(Wxcofig,resData) {
   html +='<FromUserName>'+Wxcofig.ToUserName+'</FromUserName>';
   html +='<CreateTime>'+Wxcofig.CreateTime+'</CreateTime>';
   html +='<MsgType><![CDATA[text]]></MsgType> ';
-  html +=`<Content>(≖ᴗ≖)✧ Hello，我是小欢有劵\r\n请按以下说明领取优惠券。\r\n\r\n❶直接发送宝贝标题给我，可以自动查找优惠，90%商品都能找到，详情点击菜单帮助！\r\n\r\n❷发送“XXX”会给您查找有优惠券的商品，比如：卫衣。\r\n\r\n❸直接打开小欢有劵官网：http://www.xiaohuanzi.cn</Content>`;
+  html +=`<Content>(≖ᴗ≖)✧ Hello，我是小欢有劵\r\n请按以下说明领取优惠券。\r\n\r\n❶直接发送宝贝标题给我，可以自动查找优惠，90%商品都能找到，详情点击菜单帮助！\r\n\r\n❷发送“XXX”会给您查找有优惠券的商品，比如：卫衣。\r\n\r\n❸直接打开小欢有劵官网：http://shop.xiaohuanzi.cn</Content>`;
   html +='</xml>';
   return resData.send(html);
 }
