@@ -1,5 +1,6 @@
 const mongodb = require('../mongodb.js');
 const ObjectId = require('mongodb').ObjectId;
+const client = require('../taobaoApi.js')
 const https = require("https");
 const iconv = require("iconv-lite");
 module.exports = function(app) {
@@ -85,6 +86,37 @@ module.exports = function(app) {
       var id = result.substring(result.indexOf("https://a.m.taobao.com/i")+1,result.indexOf('.htm?')).replace(/[^0-9]/ig,"");;
       console.log(id);
       });
+    })
+  });
+  app.get('/api/getUpdateCommdity', (req, res)=> {
+    client.execute('taobao.tbk.dg.optimus.material', {
+      'adzone_id':'57801250099',
+      'page_no': 1,
+      'page_size': 100,
+      'material_id': `${req.query.material_id}`,
+    }, function(err, msg) {
+      if (err) {
+        return res.send({code:201, err: err});
+      } else {
+        var product_list = [];
+        for (var i = 0; i < msg.result_list.map_data.length; i++) {
+          mongodb.find('product_list', {item_id:  msg.result_list.map_data[i].item_id}, (req, response)=> {
+            console.log(i);
+            
+          })
+
+        }
+        // return res.send({code:200, msg: 'sss'});
+
+
+
+
+
+        // mongodb.insertMany('product_list', msg.result_list.map_data, (err, response)=> {
+
+          // return res.send({code:200, msg: '成功加入'+response.insertedCount+'条数据'});
+        // });
+      }
     })
   });
 }
