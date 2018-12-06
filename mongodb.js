@@ -19,7 +19,7 @@ function connectDB(cb) {
       console.log(err);
       return err;
     }
-    console.log("连接success");
+    // console.log("连接success");
     cb(err, db);
   });
 }

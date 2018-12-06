@@ -96,7 +96,7 @@ module.exports = function(app) {
       'material_id': `${req.query.material_id}`,
     }, function(err, msg) {
       if (err) {
-        return res.send({code:201, err: err});
+        return res.send({code:201, msg: err.sub_msg});
       } else {
         var map_data = msg.result_list.map_data;
         for (var i=0; i < map_data.length; i++){
