@@ -98,15 +98,15 @@ module.exports = function(app) {
       if (err) {
         return res.send({code:201, msg: err.sub_msg});
       } else {
-        mongodb.insertMany('product_list', msg.result_list.map_data, (err, response)=> {
-          return res.send({code:200, msg: response.insertedCount});
-        });
-        // var map_data = msg.result_list.map_data;
-        // for (var i=0; i < map_data.length; i++){
-        //   mongodb.updateMany('product_list',{item_id:map_data[i].item_id}, map_data[i],(err, response)=>{
-        //   })
-        // }
-        // return res.send({code:200, msg: '更新成功'});
+        // mongodb.insertMany('product_list', msg.result_list.map_data, (err, response)=> {
+        //   return res.send({code:200, msg: response.insertedCount});
+        // });
+        var map_data = msg.result_list.map_data;
+        for (var i=0; i < map_data.length; i++){
+          mongodb.updateMany('product_list',{item_id:map_data[i].item_id}, map_data[i],(err, response)=>{
+          })
+        }
+        return res.send({code:200, msg: '更新成功'});
       }
     })
   });
