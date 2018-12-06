@@ -65,8 +65,9 @@ const base = {
   updateMany: (collectionName, condition, data , cb) => {
     connectDB((err, db) => {
       const dbo = db.db(common.setName);
+      console.log(data)
       const updateStr = {$set: data};
-      dbo.collection(collectionName).updateMany(condition, updateStr, (err, res)=> {
+      dbo.collection(collectionName).update(condition, updateStr, {upsert: true, multi: true}, (err, res)=> {
         if (err) throw err;
         console.log(res.result.nModified + " 条文档被更新");
         cb(err, res);

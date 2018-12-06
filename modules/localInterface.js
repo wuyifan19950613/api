@@ -91,31 +91,18 @@ module.exports = function(app) {
   app.get('/api/getUpdateCommdity', (req, res)=> {
     client.execute('taobao.tbk.dg.optimus.material', {
       'adzone_id':'57801250099',
-      'page_no': 1,
-      'page_size': 100,
+      'page_no': `${req.query.page_no}`,
+      'page_size': 20,
       'material_id': `${req.query.material_id}`,
     }, function(err, msg) {
       if (err) {
         return res.send({code:201, err: err});
       } else {
-        var product_list = [];
-        for (var i = 0; i < msg.result_list.map_data.length; i++) {
-          mongodb.find('product_list', {item_id:  msg.result_list.map_data[i].item_id}, (req, response)=> {
-            console.log(i);
-            
-          })
-
+        var map_data = msg.result_list.map_data;
+        for (var i=0; i < map_data.length; i++){
+          mongodb.updateMany('product_list',{item_id:map_data[i].item_id}, map_data[i]);
         }
-        // return res.send({code:200, msg: 'sss'});
-
-
-
-
-
-        // mongodb.insertMany('product_list', msg.result_list.map_data, (err, response)=> {
-
-          // return res.send({code:200, msg: '成功加入'+response.insertedCount+'条数据'});
-        // });
+        return res.send({code:200, msg: ''});
       }
     })
   });
