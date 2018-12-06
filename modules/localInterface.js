@@ -102,7 +102,7 @@ module.exports = function(app) {
         for (var i=0; i < map_data.length; i++){
           mongodb.updateMany('product_list',{item_id:map_data[i].item_id}, map_data[i]);
         }
-        return res.send({code:200, msg: ''});
+        return res.send({code:200, msg: '更新成功'});
       }
     })
   });
