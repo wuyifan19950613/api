@@ -100,7 +100,8 @@ module.exports = function(app) {
       } else {
         var map_data = msg.result_list.map_data;
         for (var i=0; i < map_data.length; i++){
-          mongodb.updateMany('product_list',{item_id:map_data[i].item_id}, map_data[i]);
+          mongodb.updateMany('product_list',{item_id:map_data[i].item_id}, map_data[i],(err, response)=>{
+          })
         }
         return res.send({code:200, msg: '更新成功'});
       }
