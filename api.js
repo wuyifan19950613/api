@@ -18,6 +18,7 @@ const base = require('./common.js')
 var sha1 = require('sha1');
 var xmlreader = require("xmlreader");
 var shoppingcart = require('./modules/localInterface'); //购物车路由
+var MyMethod = require('./modules/commonMethod'); //购物车路由
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cors());
 
@@ -101,23 +102,32 @@ app.post('/api/weixin', (req, res) => {
         recProcess(Wxcofig,resData);
         return false;
       }
-      var xxx = 'http://shop.xiaohuanzi.cn/commodity/listGoods?name='+text;
-      var url = 'http://api.t.sina.com.cn/short_url/shorten.json?source=2815391962&url_long='+url_encode(xxx)
-      var duanUrl = '';
-      request(url, (err, res, body)=> {
-        if (!err && res.statusCode == 200) {
-          var html ='';
-           duanUrl = JSON.parse(body)[0].url_short;
-           html +='<xml>';
-           html +='<ToUserName>'+Wxcofig.FromUserName+'</ToUserName>';
-           html +='<FromUserName>'+Wxcofig.ToUserName+'</FromUserName>';
-           html +='<CreateTime>'+Wxcofig.CreateTime+'</CreateTime>';
-           html +='<MsgType>'+Wxcofig.MsgType+'</MsgType> ';
-           html +=`<Content>兄dei，已为您找到“${text}”的相关宝贝优惠卷\r\n\r\n点击查看☛${duanUrl}</Content>`;
-           html +='</xml>';
-           return resData.send(html);
-         }
-       });
+      var url = text.substring(text.indexOf('https:'), text.indexOf(' 点击链接'));
+      MyMethod.dismantlID(url,(id)=> {
+        mongodb.find('product_list', {"item_id": parseInt(id)}, (err, response)=> {
+          if(JSON.stringify(response) == '[]'){
+            console.log('没有找到')
+          }else{
+            var short_links = 'http://192.168.80.16:3100/shopDetail?item_id='+parseInt(id);
+            var trans_url = 'http://api.t.sina.com.cn/short_url/shorten.json?source=2815391962&url_long='+url_encode(short_links);
+            var duanUrl = '';
+            request(trans_url, (err, res, body)=> {
+              if (!err && res.statusCode == 200) {
+                var html ='';
+                 duanUrl = JSON.parse(body)[0].url_short;
+                 html +='<xml>';
+                 html +='<ToUserName>'+Wxcofig.FromUserName+'</ToUserName>';
+                 html +='<FromUserName>'+Wxcofig.ToUserName+'</FromUserName>';
+                 html +='<CreateTime>'+Wxcofig.CreateTime+'</CreateTime>';
+                 html +='<MsgType>'+Wxcofig.MsgType+'</MsgType> ';
+                 html +=`<Content>兄dei，已为您找到“${text}”的相关宝贝优惠卷\r\n\r\n点击查看☛${duanUrl}</Content>`;
+                 html +='</xml>';
+                 return resData.send(html);
+               }
+             });
+          }
+        })
+      })
       }
     });
   });
