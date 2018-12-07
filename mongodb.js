@@ -65,7 +65,6 @@ const base = {
   updateMany: (collectionName, condition, data , cb) => {
     connectDB((err, db) => {
       const dbo = db.db(common.setName);
-      console.log(data)
       const updateStr = {$set: data};
       dbo.collection(collectionName).update(condition, updateStr, {upsert: true, multi: true}, (err, res)=> {
         if (err) throw err;
