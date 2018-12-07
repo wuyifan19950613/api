@@ -69,7 +69,6 @@ const base = {
       const updateStr = {$set: data};
       dbo.collection(collectionName).update(condition, updateStr, {upsert: true, multi: true}, (err, res)=> {
         if (err) throw err;
-        console.log(res.result.nModified + " 条文档被更新");
         cb(err, res);
         db.close();
       })

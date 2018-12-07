@@ -15,7 +15,6 @@ var cheerio = require('cheerio');
 const ObjectId = require('mongodb').ObjectId;
 const client = require('./taobaoApi.js')
 const base = require('./common.js');
-const MyMethod = require('./modules/common.js');
 var sha1 = require('sha1');
 var xmlreader = require("xmlreader");
 var shoppingcart = require('./modules/localInterface'); //购物车路由
@@ -332,6 +331,7 @@ app.get('/api/taobao/guessLike', (req, res)=> {
 
 // 淘口令生成
 app.get('/api/taobao/pwdCreate', (req, res)=> {
+  console.log(req.query.url)
   client.execute('taobao.tbk.tpwd.create', {
   	'user_id':'1746586102',
   	'text':`${req.query.title}`,
