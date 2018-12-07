@@ -120,7 +120,7 @@ app.post('/api/weixin', (req, res) => {
                  html +='<FromUserName>'+Wxcofig.ToUserName+'</FromUserName>';
                  html +='<CreateTime>'+Wxcofig.CreateTime+'</CreateTime>';
                  html +='<MsgType>'+Wxcofig.MsgType+'</MsgType> ';
-                 html +=`<Content>兄dei，已为您找到“${response[0].title}”的相关宝贝优惠卷\r\n\r\n点击查看☛${duanUrl}</Content>`;
+                 html +=`<Content>兄dei，${response[0].title}\r\n现售价：${response[0].zk_final_price}\r\n优惠券：${response[0].coupon_amount}\r\n\r\n点击购买☛${duanUrl}</Content>`;
                  html +='</xml>';
                  return resData.send(html);
                }
