@@ -1,6 +1,6 @@
 const mongodb = require('../mongodb.js');
 const ObjectId = require('mongodb').ObjectId;
-const client = require('../taobaoApi.js')
+const client = require('../taobaoApi.js');
 const https = require("https");
 const iconv = require("iconv-lite");
 module.exports = function(app) {
@@ -110,4 +110,14 @@ module.exports = function(app) {
       }
     })
   });
+  // 商品详情接口信息
+  app.get('/api/getCommodityDetails', (req, res)=> {
+    mongodb.find('product_list', {"item_id": parseInt(req.query.item_id)}, (err, msg) => {
+      if(err) {
+        return res.send({code: 201, data: err});
+      } else {
+        return res.send({code: 200,data: msg});
+      }
+    });
+  })
 }
