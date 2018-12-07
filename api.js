@@ -106,7 +106,15 @@ app.post('/api/weixin', (req, res) => {
       MyMethod.dismantlID(url,(id)=> {
         mongodb.find('product_list', {"item_id": parseInt(id)}, (err, response)=> {
           if(JSON.stringify(response) == '[]'){
-            console.log('没有找到')
+            var html ='';
+            html +='<xml>';
+            html +='<ToUserName>'+Wxcofig.FromUserName+'</ToUserName>';
+            html +='<FromUserName>'+Wxcofig.ToUserName+'</FromUserName>';
+            html +='<CreateTime>'+Wxcofig.CreateTime+'</CreateTime>';
+            html +='<MsgType>'+Wxcofig.MsgType+'</MsgType> ';
+            html +=`<Content>很抱歉，该宝贝暂时无优惠，试试其他宝贝吧~</Content>`;
+            html +='</xml>';
+            return resData.send(html);
           }else{
             var short_links = 'http://www.xiaohuanzi.cn/shopDetail?item_id='+parseInt(id);
             var trans_url = 'http://api.t.sina.com.cn/short_url/shorten.json?source=2815391962&url_long='+url_encode(short_links);
