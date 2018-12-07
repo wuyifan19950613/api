@@ -108,7 +108,7 @@ app.post('/api/weixin', (req, res) => {
           if(JSON.stringify(response) == '[]'){
             console.log('没有找到')
           }else{
-            var short_links = 'http://192.168.80.16:3100/shopDetail?item_id='+parseInt(id);
+            var short_links = 'http://www.xiaohuanzi.cn/shopDetail?item_id='+parseInt(id);
             var trans_url = 'http://api.t.sina.com.cn/short_url/shorten.json?source=2815391962&url_long='+url_encode(short_links);
             var duanUrl = '';
             request(trans_url, (err, res, body)=> {
