@@ -93,54 +93,63 @@ app.post('/api/weixin', (req, res) => {
       MsgType: getXMLNodeValue('MsgType',_da),
     }
     if (res.xml.MsgType.text() == 'image' || res.xml.MsgType.text() == 'event' || res.xml.MsgType.text() == 'voice') {
-        recProcess(Wxcofig,resData);
+        recProcess(Wxcofig, resData);
         return false;
     }
     if (res.xml.MsgType.text() == 'text') {
       text = res.xml.Content.text();
       if (text == '【收到不支持的消息类型，暂无法显示】'|| text.indexOf("/:") != -1) {
-        recProcess(Wxcofig,resData);
+        recProcess(Wxcofig, resData);
+        return false;
+      }
+      // 如果连接带有id就直接获取id
+      if(text.indexOf('?id') != -1){
+        const id = base.getUrlParam(text);
+        wechatOutReply(id, Wxcofig, resData);
         return false;
       }
       var url = text.substring(text.indexOf('https:'), text.indexOf(' 点击链接'));
       MyMethod.dismantlID(url,(id)=> {
-        mongodb.find('product_list', {"item_id": parseInt(id)}, (err, response)=> {
-          if(JSON.stringify(response) == '[]'){
-            var html ='';
-            html +='<xml>';
-            html +='<ToUserName>'+Wxcofig.FromUserName+'</ToUserName>';
-            html +='<FromUserName>'+Wxcofig.ToUserName+'</FromUserName>';
-            html +='<CreateTime>'+Wxcofig.CreateTime+'</CreateTime>';
-            html +='<MsgType>'+Wxcofig.MsgType+'</MsgType> ';
-            html +=`<Content>很抱歉，该宝贝暂时无优惠，试试其他宝贝吧~</Content>`;
-            html +='</xml>';
-            return resData.send(html);
-          }else{
-            var short_links = 'http://www.xiaohuanzi.cn/shopDetail?item_id='+parseInt(id);
-            var trans_url = 'http://api.t.sina.com.cn/short_url/shorten.json?source=2815391962&url_long='+url_encode(short_links);
-            var duanUrl = '';
-            request(trans_url, (err, res, body)=> {
-              if (!err && res.statusCode == 200) {
-                var html ='';
-                 duanUrl = JSON.parse(body)[0].url_short;
-                 html +='<xml>';
-                 html +='<ToUserName>'+Wxcofig.FromUserName+'</ToUserName>';
-                 html +='<FromUserName>'+Wxcofig.ToUserName+'</FromUserName>';
-                 html +='<CreateTime>'+Wxcofig.CreateTime+'</CreateTime>';
-                 html +='<MsgType>'+Wxcofig.MsgType+'</MsgType> ';
-                 html +=`<Content>兄dei，${response[0].title}\r\n\r\n现售价：${response[0].zk_final_price}元\r\n优惠券：${response[0].coupon_amount}元\r\n\r\n点击购买☛${duanUrl}</Content>`;
-                 html +='</xml>';
-                 return resData.send(html);
-               }
-             });
-          }
-        })
+        wechatOutReply(id,Wxcofig ,resData);
       })
-      }
+     }
     });
   });
 })
 
+function wechatOutReply(id, Wxcofig, resData) {
+  mongodb.find('product_list', {"item_id": parseInt(id)}, (err, response)=> {
+    if(JSON.stringify(response) == '[]'){
+      var html ='';
+      html +='<xml>';
+      html +='<ToUserName>'+Wxcofig.FromUserName+'</ToUserName>';
+      html +='<FromUserName>'+Wxcofig.ToUserName+'</FromUserName>';
+      html +='<CreateTime>'+Wxcofig.CreateTime+'</CreateTime>';
+      html +='<MsgType>'+Wxcofig.MsgType+'</MsgType> ';
+      html +=`<Content>很抱歉，该宝贝暂时无优惠，试试其他宝贝吧~</Content>`;
+      html +='</xml>';
+      return resData.send(html);
+    }else{
+      var short_links = 'http://www.xiaohuanzi.cn/shopDetail?item_id='+parseInt(id);
+      var trans_url = 'http://api.t.sina.com.cn/short_url/shorten.json?source=2815391962&url_long='+url_encode(short_links);
+      var duanUrl = '';
+      request(trans_url, (err, res, body)=> {
+        if (!err && res.statusCode == 200) {
+          var html ='';
+           duanUrl = JSON.parse(body)[0].url_short;
+           html +='<xml>';
+           html +='<ToUserName>'+Wxcofig.FromUserName+'</ToUserName>';
+           html +='<FromUserName>'+Wxcofig.ToUserName+'</FromUserName>';
+           html +='<CreateTime>'+Wxcofig.CreateTime+'</CreateTime>';
+           html +='<MsgType>'+Wxcofig.MsgType+'</MsgType> ';
+           html +=`<Content>兄dei，${response[0].title}\r\n\r\n现售价：${response[0].zk_final_price}元\r\n优惠券：${response[0].coupon_amount}元\r\n\r\n点击购买☛${duanUrl}</Content>`;
+           html +='</xml>';
+           return resData.send(html);
+         }
+       });
+    }
+  })
+}
 // 新增用户名
 app.post('/api/user/register', (req, res) => {
   let body = "";

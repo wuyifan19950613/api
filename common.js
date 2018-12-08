@@ -34,6 +34,9 @@ const base = {
       phoneType = 'other';
     }
     return phoneType;
+  },
+  getUrlParam: (name)=> {
+    return (name.split('?')[1]).substring(3);
   }
 }
 
