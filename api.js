@@ -348,7 +348,6 @@ app.get('/api/taobao/guessLike', (req, res)=> {
 
 // 淘口令生成
 app.get('/api/taobao/pwdCreate', (req, res)=> {
-  console.log(req.query.url)
   client.execute('taobao.tbk.tpwd.create', {
   	'user_id':'1746586102',
   	'text':`${req.query.title}`,

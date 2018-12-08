@@ -85,7 +85,6 @@ module.exports = function(app) {
       var buff = Buffer.concat(datas, size);
       var result = iconv.decode(buff, "utf8");//转码//var result = buff.toString();//不需要转编码,直接tostring
       var id = result.substring(result.indexOf("https://a.m.taobao.com/i")+1,result.indexOf('.htm?')).replace(/[^0-9]/ig,"");;
-      console.log(id);
       });
     })
   });
