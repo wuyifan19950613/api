@@ -117,7 +117,6 @@ module.exports = function(app) {
     });
     req.on('end', () => {
       body = JSON.parse(body);
-      console.log(body);
       for (var i=0; i < body.length; i++){
         mongodb.updateMany('product_list',{item_id:body[i].item_id}, body[i],(err, response)=>{
         });
