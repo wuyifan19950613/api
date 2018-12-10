@@ -110,6 +110,22 @@ module.exports = function(app) {
       }
     })
   });
+  app.post('/api/updateType', (req, res)=> {
+    let body = "";
+    req.on('data', (chunk) => {
+      body += chunk;
+    });
+    req.on('end', () => {
+      body = JSON.parse(body);
+      console.log(body);
+      for (var i=0; i < body.length; i++){
+        mongodb.updateMany('product_list',{item_id:body[i].item_id}, body[i],(err, response)=>{
+        });
+      }
+      return res.send({code:200, msg: '更新成功'});
+    });
+
+  });
   // 商品详情接口信息
   app.get('/api/getCommodityDetails', (req, res)=> {
     mongodb.find('product_list', {"item_id": parseInt(req.query.item_id)}, (err, msg) => {
