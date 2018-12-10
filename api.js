@@ -52,7 +52,7 @@ function recProcess(Wxcofig,resData) {
   html +='<FromUserName>'+Wxcofig.ToUserName+'</FromUserName>';
   html +='<CreateTime>'+Wxcofig.CreateTime+'</CreateTime>';
   html +='<MsgType><![CDATA[text]]></MsgType> ';
-  html +=`<Content>(≖ᴗ≖)✧ Hello，我是小欢有劵\r\n请按以下说明领取优惠券。\r\n\r\n❶直接发送宝贝标题给我，可以自动查找优惠，90%商品都能找到，详情点击菜单帮助！\r\n\r\n❷发送“XXX”会给您查找有优惠券的商品，比如：卫衣。\r\n\r\n❸直接打开小欢有劵官网：http://shop.xiaohuanzi.cn</Content>`;
+  html +=`<Content>(≖ᴗ≖)✧ Hello，我是小欢有劵\r\n请按以下说明领取优惠券。\r\n\r\n❶直接发送宝贝链接给我，可以自动查找优惠，90%商品都能找到，详情点击菜单帮助！\r\n\r\n❷发送“XXX”会给您查找有优惠券的商品，比如：卫衣。\r\n\r\n❸直接打开小欢有劵官网：http://shop.xiaohuanzi.cn</Content>`;
   html +='</xml>';
   return resData.send(html);
 }
@@ -102,16 +102,38 @@ app.post('/api/weixin', (req, res) => {
         recProcess(Wxcofig, resData);
         return false;
       }
-      // 如果连接带有id就直接获取id
-      if(text.indexOf('?id') != -1){
-        const id = base.getUrlParam(text);
-        wechatOutReply(id, Wxcofig, resData);
-        return false;
+      // 如果带有链接
+      if(text.indexOf('https') != -1){
+        // 如果连接带有id就直接获取id
+        if(text.indexOf('?id') != -1){
+          const id = base.getUrlParam(text);
+          wechatOutReply(id, Wxcofig, resData);
+          return false;
+        }
+        var url = text.substring(text.indexOf('https:'), text.indexOf(' 点击链接'));
+        MyMethod.dismantlID(url,(id)=> {
+          wechatOutReply(id,Wxcofig ,resData);
+        })
+      } else{
+        var short_links = 'http://www.xiaohuanzi.cn/search?searchName='+text;
+        var trans_url = 'http://api.t.sina.com.cn/short_url/shorten.json?source=2815391962&url_long='+url_encode(short_links);
+        var duanUrl = '';
+        request(trans_url, (err, res, body)=> {
+          if (!err && res.statusCode == 200) {
+            var html ='';
+             duanUrl = JSON.parse(body)[0].url_short;
+             html +='<xml>';
+             html +='<ToUserName>'+Wxcofig.FromUserName+'</ToUserName>';
+             html +='<FromUserName>'+Wxcofig.ToUserName+'</FromUserName>';
+             html +='<CreateTime>'+Wxcofig.CreateTime+'</CreateTime>';
+             html +='<MsgType>'+Wxcofig.MsgType+'</MsgType> ';
+             html +=`<Content>兄dei，以为你找到【${text}】相关商品\r\n\r\n点击购买☛${duanUrl}\r\n\r\n网站收录商品有限，建议直接分享淘宝链接查询优惠~</Content>`;
+             html +='</xml>';
+             return resData.send(html);
+           }
+         });
       }
-      var url = text.substring(text.indexOf('https:'), text.indexOf(' 点击链接'));
-      MyMethod.dismantlID(url,(id)=> {
-        wechatOutReply(id,Wxcofig ,resData);
-      })
+
      }
     });
   });
