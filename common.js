@@ -37,7 +37,12 @@ const base = {
   },
   getUrlParam: (name)=> {
     return (name.split('?')[1]).substring(3);
-  }
+  },
+  CouponNum: (v)=> {
+    const index = v.indexOf('减');
+    const result = parseInt(v.substr(index + 1,v.length));
+    return result;
+  },
 }
 
 

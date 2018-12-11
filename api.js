@@ -133,15 +133,19 @@ app.post('/api/weixin', (req, res) => {
            }
          });
       }
-
      }
     });
   });
 })
-
 function wechatOutReply(id, Wxcofig, resData) {
-  mongodb.find('product_list', {"item_id": parseInt(id)}, (err, response)=> {
-    if(JSON.stringify(response) == '[]'){
+  var taobaoUrl = `https://item.taobao.com/item.htm?id=${id}`;
+  client.execute('taobao.tbk.dg.material.optional', {
+    'adzone_id':'57801250099',
+    'platform': '2',
+    'sort': '_des,tk_rate',
+    'q': `${taobaoUrl}`,
+  }, function(err, msg) {
+    if (err) {
       var html ='';
       html +='<xml>';
       html +='<ToUserName>'+Wxcofig.FromUserName+'</ToUserName>';
@@ -151,10 +155,21 @@ function wechatOutReply(id, Wxcofig, resData) {
       html +=`<Content>很抱歉，该宝贝暂时无优惠，试试其他宝贝吧~</Content>`;
       html +='</xml>';
       return resData.send(html);
-    }else{
+    } else {
+      var map_data = msg.result_list.map_data[0];
+      var num_iid = map_data.num_iid;
+      var coupon_info = map_data.coupon_info == '' ? '0' : base.CouponNum(map_data.coupon_info);
+      var coupon_share_url = map_data.coupon_share_url ? map_data.coupon_share_url : map_data.url;
+      delete(map_data.num_iid);
+      delete(map_data.coupon_info);
+      delete(map_data.coupon_share_url);
+      map_data.item_id = num_iid;
+      map_data.coupon_click_url = coupon_share_url;
+      map_data.coupon_amount = coupon_info;
+      mongodb.updateMany('product_list',{item_id:map_data.item_id}, map_data,(err, response)=>{
+      })
       var short_links = 'http://www.xiaohuanzi.cn/shopDetail?item_id='+parseInt(id);
       var trans_url = 'http://api.t.sina.com.cn/short_url/shorten.json?source=2815391962&url_long='+url_encode(short_links);
-      var duanUrl = '';
       request(trans_url, (err, res, body)=> {
         if (!err && res.statusCode == 200) {
           var html ='';
@@ -164,7 +179,7 @@ function wechatOutReply(id, Wxcofig, resData) {
            html +='<FromUserName>'+Wxcofig.ToUserName+'</FromUserName>';
            html +='<CreateTime>'+Wxcofig.CreateTime+'</CreateTime>';
            html +='<MsgType>'+Wxcofig.MsgType+'</MsgType> ';
-           html +=`<Content>兄dei，${response[0].title}\r\n\r\n现售价：${response[0].zk_final_price}元\r\n优惠券：${response[0].coupon_amount}元\r\n\r\n点击购买☛${duanUrl}</Content>`;
+           html +=`<Content>兄dei，${map_data.title}\r\n\r\n现售价：${map_data.zk_final_price}元\r\n优惠券：${map_data.coupon_amount}元\r\n\r\n点击购买☛${duanUrl}</Content>`;
            html +='</xml>';
            return resData.send(html);
          }
@@ -407,7 +422,6 @@ app.get('/api/taobao/materialOptional', (req, res)=> {
     'platform': '2',
     'sort': '_des,tk_rate',
     'q': `${req.query.searchName}`,
-    'has_coupon': 'true',
   }, function(err, msg) {
     if (err) {
       return res.send({code:201, err: err});
