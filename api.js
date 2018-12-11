@@ -170,6 +170,7 @@ function wechatOutReply(id, Wxcofig, resData) {
       })
       var short_links = 'http://www.xiaohuanzi.cn/shopDetail?item_id='+parseInt(id);
       var trans_url = 'http://api.t.sina.com.cn/short_url/shorten.json?source=2815391962&url_long='+url_encode(short_links);
+      var redenvelopes = Math.floor((map_data.commission_rate / 100).toFixed(2) * (map_data.zk_final_price - map_data.coupon_amount)) / 100;
       request(trans_url, (err, res, body)=> {
         if (!err && res.statusCode == 200) {
           var html ='';
@@ -179,7 +180,7 @@ function wechatOutReply(id, Wxcofig, resData) {
            html +='<FromUserName>'+Wxcofig.ToUserName+'</FromUserName>';
            html +='<CreateTime>'+Wxcofig.CreateTime+'</CreateTime>';
            html +='<MsgType>'+Wxcofig.MsgType+'</MsgType> ';
-           html +=`<Content>兄dei，${map_data.title}\r\n\r\n现售价：${map_data.zk_final_price}元\r\n优惠券：${map_data.coupon_amount}元\r\n\r\n点击购买☛${duanUrl}</Content>`;
+           html +=`<Content>兄dei，${map_data.title}\r\n\r\n现售价：${map_data.zk_final_price}元\r\n优惠券：${map_data.coupon_amount}元\r\n返红包：${redenvelopes}元\r\n\r\n点击购买☛${duanUrl}</Content>`;
            html +='</xml>';
            return resData.send(html);
          }
