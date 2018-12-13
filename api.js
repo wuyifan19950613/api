@@ -206,7 +206,7 @@ function wechatOutReply(id, Wxcofig, resData) {
       })
       var short_links = 'http://www.xiaohuanzi.cn/shopDetail?item_id='+parseInt(id);
       var trans_url = 'http://api.t.sina.com.cn/short_url/shorten.json?source=2815391962&url_long='+url_encode(short_links);
-      var redenvelopes = Math.floor((Math.floor((map_data.commission_rate / 100).toFixed(2) * (map_data.zk_final_price - map_data.coupon_amount)) / 100) / 2 * 100) / 100;
+      var redenvelopes = Math.floor((Math.floor((map_data.commission_rate / 100).toFixed(2) * (map_data.zk_final_price - map_data.coupon_amount)) / 100) * 0.7 * 100) / 100;
       request(trans_url, (err, res, body)=> {
         if (!err && res.statusCode == 200) {
           var html ='';
