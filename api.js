@@ -26,9 +26,37 @@ const config = {
   wechat:{
     appID:'wx26408a8b0b607e01', //填写你自己的appID
     appSecret:'edec6e5b252b8d1cac4bc1d32b986453', //填写你自己的appSecret
-    token:'XiaoHuanYouJuan' //填写你自己的token
+    token:'XiaoHuanYouJuan', //填写你自己的token
+    access_token: '',
   }
 };
+// access_token((cb)=> {
+//   var access_token = JSON.parse(cb).access_token;
+//   //
+//   https.get('https://api.weixin.qq.com/cgi-bin/material/batchget_material?access_token='+access_token+'&type=image&offset=offset&count=20', (msg)=> {
+//     var html = "";
+//     msg.on('data', (data) => {
+//       html += data;
+//     });
+//     msg.on('end', () => {
+//       console.log(html);
+//     })
+//   });
+// })
+function access_token(cb){
+  https.get('https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid='+config.wechat.appID+'&secret='+config.wechat.appSecret, (msg)=> {
+    var html = "";
+    msg.on('data', (data) => {
+      html += data;
+    });
+    msg.on('end', () => {
+      if(cb){
+        cb(html);
+      }
+    })
+  })
+}
+
 function getXMLNodeValue(node_name,xml){
     var tmp = xml.split("<"+node_name+">");
     var _tmp = tmp[1].split("</"+node_name+">");
@@ -51,9 +79,16 @@ function recProcess(Wxcofig,resData) {
   html +='<ToUserName>'+Wxcofig.FromUserName+'</ToUserName>';
   html +='<FromUserName>'+Wxcofig.ToUserName+'</FromUserName>';
   html +='<CreateTime>'+Wxcofig.CreateTime+'</CreateTime>';
-  html +='<MsgType><![CDATA[text]]></MsgType> ';
+  html +='<MsgType><![CDATA[text]]></MsgType>';
   html +=`<Content>(≖ᴗ≖)✧ Hello，我是小欢有劵\r\n请按以下说明领取优惠券。\r\n\r\n❶直接发送宝贝链接给我，可以自动查找优惠，90%商品都能找到，详情点击菜单帮助！\r\n\r\n❷发送“XXX”会给您查找有优惠券的商品，比如：卫衣。\r\n\r\n❸直接打开小欢有劵官网：http://shop.xiaohuanzi.cn</Content>`;
   html +='</xml>';
+  // html +='<xml>';
+  // html +='<ToUserName>'+Wxcofig.FromUserName+'</ToUserName>';
+  // html +='<FromUserName>'+Wxcofig.ToUserName+'</FromUserName>';
+  // html +='<CreateTime>'+Wxcofig.CreateTime+'</CreateTime>';
+  // html +='<MsgType><![CDATA[image]]></MsgType>';
+  // html +='<MediaId><![CDATA[media_id] ]></MediaId>';
+  // html +='</xml>';
   return resData.send(html);
 }
 shoppingcart(app);
@@ -74,6 +109,7 @@ app.get('/api/weixin', (req, res) => {
   }
 });
 app.post('/api/weixin', (req, res) => {
+
   var _da;
   const resData = res;
   req.on("data",function(data){
@@ -379,10 +415,6 @@ app.get('/api/taobao/guessLike', (req, res)=> {
     }
   })
 });
-
-
-
-
 
 // 淘口令生成
 app.get('/api/taobao/pwdCreate', (req, res)=> {
