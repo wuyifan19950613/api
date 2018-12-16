@@ -4,7 +4,7 @@ const client = require('../taobaoApi.js');
 const http = require("http");
 const https = require("https");
 const iconv = require("iconv-lite");
-var request = require('request');
+var MyMethod = require('./commonMethod.js'); //购物车路由
 module.exports = function(app) {
   app.post('/api/addIndexBanner', (req, res)=> {
     let body = "";
@@ -152,29 +152,5 @@ module.exports = function(app) {
       }
     });
   });
-  request({
-    url: 'http://gateway.kouss.com/tbpub/orderGet',
-    method: "POST",
-    json: true,
-    headers: {
-      "content-type": "application/json",
-    },
-    body: {
-      "fields":"tb_trade_parent_id,tk_status,tb_trade_id,num_iid,item_title,item_num,price,pay_price,seller_nick,seller_shop_title,commission,commission_rate,unid,create_time,earning_time,tk3rd_pub_id,tk3rd_site_id,tk3rd_adzone_id,relation_id",
-      "start_time":"2018-12-12 00:00:00",
-      "span":1200,
-      "page_size":100,
-      "tk_status":1,
-      "order_query_type":"create_time",
-      "session":"70000100c4844973c1cbd9e8b39753c9a39d169872f88da0dfec9dd80ee41f004cd5f881746586102"
-    }
-  }, function(error, response, body) {
-    if (!error && response.statusCode == 200) {
-      var order_list = body.tbk_sc_order_get_response.results.n_tbk_order;
-      for (var i = 0; i < order_list.length; i++) {
-        mongodb.updateMany('order_details', {trade_id:order_list[i].trade_id}, order_list[i],(err, response)=>{
-        });
-      } 
-    }
-  });
+  MyMethod.get_order_details();
 }
