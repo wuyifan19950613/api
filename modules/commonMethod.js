@@ -72,19 +72,21 @@ var MyMethod = {
         "session":"70000100c4844973c1cbd9e8b39753c9a39d169872f88da0dfec9dd80ee41f004cd5f881746586102"
       }
     }, function(error, response, body) {
+      console.log(body)
       if (!error && response.statusCode == 200) {
-        var order_list = body.tbk_sc_order_get_response.results.n_tbk_order;
-        console.log(order_list)
-        if(order_list){
-          for (var i = 0; i < order_list.length; i++) {
-            mongodb.updateMany('order_details', {trade_id:order_list[i].trade_id}, order_list[i],(err, response)=>{
-            });
+        if (body.tbk_sc_order_get_response) {
+          var order_list = body.tbk_sc_order_get_response.results.n_tbk_order;
+          if(order_list){
+            for (var i = 0; i < order_list.length; i++) {
+              mongodb.updateMany('order_details', {trade_id:order_list[i].trade_id}, order_list[i],(err, response)=>{
+              });
+            }
           }
         }
-        setInterval(()=> {
-          MyMethod.get_order_details();
-        },60000)
       }
+      setInterval(()=> {
+        MyMethod.get_order_details();
+      },60000)
     });
   }
 }

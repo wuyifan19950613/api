@@ -152,5 +152,6 @@ module.exports = function(app) {
       }
     });
   });
-  MyMethod.get_order_details();
+  // 获取订单信息
+  // MyMethod.get_order_details();
 }

@@ -93,8 +93,41 @@ function recProcess(Wxcofig,resData) {
 }
 shoppingcart(app);
 // http://wuyifan.free.idcfengye.com
+// 微信机器人自动回复
+app.get('/api/wechatRobot', (req, res)=> {
+  var url = req.query.url;
+  var text = req.query.text;
+  var resData = res;
+  if (url) {
+    if(url.indexOf('https') != -1){
+      // 如果连接带有id就直接获取id
+      if(url.indexOf('?id') != -1){
+        const id = base.getUrlParam(url);
+        // wechatOutReply(id, Wxcofig, resData);
+        console.log(id);
+        wechatRobotOutReply(id, res)
+        return false;
+      }
+      MyMethod.dismantlID(url,(id)=> {
+        wechatRobotOutReply(id, res);
+      })
+    }
+  } else if (text) {
+    console.log(text);
+    var short_links = 'http://www.xiaohuanzi.cn/search?searchName='+text;
+    var trans_url = 'http://api.t.sina.com.cn/short_url/shorten.json?source=2815391962&url_long='+url_encode(short_links);
+    var duanUrl = '';
+    request(trans_url, (err, res, body)=> {
+      if (!err && res.statusCode == 200) {
+        var html ='';
+         duanUrl = JSON.parse(body)[0].url_short;
+         html +=`兄dei，以为你找到【${text}】相关商品\r\n\r\n点击购买☛${duanUrl}\r\n\r\n网站收录商品有限，建议直接分享淘宝链接查询优惠~`;
+         return resData.send(html);
+       }
+     });
+  }
+})
 app.get('/api/weixin', (req, res) => {
-  console.log('get')
   var token = config.wechat.token;
   var signature = req.query.signature;
   var nonce = req.query.nonce;
@@ -172,7 +205,47 @@ app.post('/api/weixin', (req, res) => {
      }
     });
   });
-})
+});
+function wechatRobotOutReply(id,resData){
+  var taobaoUrl = `https://item.taobao.com/item.htm?id=${id}`;
+  client.execute('taobao.tbk.dg.material.optional', {
+    'adzone_id':'57801250099',
+    'platform': '2',
+    'sort': '_des,tk_rate',
+    'q': `${taobaoUrl}`,
+  }, function(err, msg) {
+    if (err) {
+      var html ='';
+      html +=`很抱歉，该宝贝暂时无优惠，试试其他宝贝吧~`;
+      return resData.send(html);
+    } else {
+      var map_data = msg.result_list.map_data[0];
+      var num_iid = map_data.num_iid;
+      var coupon_info = map_data.coupon_info == '' ? '0' : base.CouponNum(map_data.coupon_info);
+      var coupon_share_url = map_data.coupon_share_url ? map_data.coupon_share_url : map_data.url;
+      delete(map_data.num_iid);
+      delete(map_data.coupon_info);
+      delete(map_data.coupon_share_url);
+      map_data.item_id = num_iid;
+      map_data.coupon_click_url = coupon_share_url;
+      map_data.coupon_amount = coupon_info;
+      mongodb.updateMany('product_list',{item_id:map_data.item_id}, map_data,(err, response)=>{
+      })
+      var short_links = 'http://www.xiaohuanzi.cn/shopDetail?item_id='+parseInt(id);
+      var trans_url = 'http://api.t.sina.com.cn/short_url/shorten.json?source=2815391962&url_long='+url_encode(short_links);
+      var redenvelopes = Math.floor((Math.floor((map_data.commission_rate / 100).toFixed(2) * (map_data.zk_final_price - map_data.coupon_amount)) / 100) * 0.7 * 100) / 100;
+      request(trans_url, (err, res, body)=> {
+        if (!err && res.statusCode == 200) {
+          var html ='';
+           duanUrl = JSON.parse(body)[0].url_short;
+           html +=`兄dei，${map_data.title}\r\n\r\n现售价：${map_data.zk_final_price}元\r\n优惠券：${map_data.coupon_amount}元\r\n返红包：${redenvelopes}元\r\n\r\n点击购买☛${duanUrl}`;
+           return resData.send(html);
+         }
+       });
+    }
+  })
+
+}
 function wechatOutReply(id, Wxcofig, resData) {
   var taobaoUrl = `https://item.taobao.com/item.htm?id=${id}`;
   client.execute('taobao.tbk.dg.material.optional', {
