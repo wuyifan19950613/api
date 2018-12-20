@@ -30,32 +30,6 @@ const config = {
     access_token: '',
   }
 };
-// access_token((cb)=> {
-//   var access_token = JSON.parse(cb).access_token;
-//   //
-//   https.get('https://api.weixin.qq.com/cgi-bin/material/batchget_material?access_token='+access_token+'&type=image&offset=offset&count=20', (msg)=> {
-//     var html = "";
-//     msg.on('data', (data) => {
-//       html += data;
-//     });
-//     msg.on('end', () => {
-//       console.log(html);
-//     })
-//   });
-// })
-function access_token(cb){
-  https.get('https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid='+config.wechat.appID+'&secret='+config.wechat.appSecret, (msg)=> {
-    var html = "";
-    msg.on('data', (data) => {
-      html += data;
-    });
-    msg.on('end', () => {
-      if(cb){
-        cb(html);
-      }
-    })
-  })
-}
 
 function getXMLNodeValue(node_name,xml){
     var tmp = xml.split("<"+node_name+">");
@@ -73,14 +47,14 @@ function url_encode(url){
     return url;
 }
 // 自动回复处理
-function recProcess(Wxcofig,resData) {
+function recProcess(Wxcofig, resData, site_name) {
   var html ='';
   html +='<xml>';
   html +='<ToUserName>'+Wxcofig.FromUserName+'</ToUserName>';
   html +='<FromUserName>'+Wxcofig.ToUserName+'</FromUserName>';
   html +='<CreateTime>'+Wxcofig.CreateTime+'</CreateTime>';
   html +='<MsgType><![CDATA[text]]></MsgType>';
-  html +=`<Content>(≖ᴗ≖)✧ Hello，我是小欢有劵\r\n请按以下说明领取优惠券。\r\n\r\n❶直接发送宝贝链接给我，可以自动查找优惠，90%商品都能找到，详情点击菜单帮助！\r\n\r\n❷发送“XXX”会给您查找有优惠券的商品，比如：卫衣。\r\n\r\n❸直接打开小欢有劵官网：http://www.xiaohuanzi.cn (复制地址用浏览器打开)</Content>`;
+  html +=`<Content>(≖ᴗ≖)✧ Hello，我是${site_name}\r\n请按以下说明领取优惠券。\r\n\r\n❶直接发送宝贝链接给我，可以自动查找优惠，90%商品都能找到，详情点击菜单帮助！\r\n\r\n❷发送“XXX”会给您查找有优惠券的商品，比如：卫衣。\r\n\r\n❸直接打开小欢有劵官网：http://www.xiaohuanzi.cn (复制地址用浏览器打开)</Content>`;
   html +='</xml>';
   // html +='<xml>';
   // html +='<ToUserName>'+Wxcofig.FromUserName+'</ToUserName>';
@@ -142,67 +116,71 @@ app.get('/api/weixin', (req, res) => {
   }
 });
 app.post('/api/weixin', (req, res) => {
-
-  var _da;
-  const resData = res;
-  req.on("data",function(data){
-    /*微信服务器传过来的是xml格式的，是buffer类型，因为js本身只有字符串数据类型，所以需要通过toString把xml转换为字符串*/
-    _da = data.toString("utf-8");
-  });
-  req.on("end",function(){
-    var text = '';
-  xmlreader.read(_da, (err, res) => {
-    if(null !== err ){
-      return '';
-    }
-    const Wxcofig = {
-      ToUserName: getXMLNodeValue('ToUserName',_da),
-      FromUserName: getXMLNodeValue('FromUserName',_da),
-      CreateTime: getXMLNodeValue('CreateTime',_da),
-      MsgType: getXMLNodeValue('MsgType',_da),
-    }
-    if (res.xml.MsgType.text() == 'image' || res.xml.MsgType.text() == 'event' || res.xml.MsgType.text() == 'voice') {
-        recProcess(Wxcofig, resData);
-        return false;
-    }
-    if (res.xml.MsgType.text() == 'text') {
-      text = res.xml.Content.text();
-      if (text == '【收到不支持的消息类型，暂无法显示】'|| text.indexOf("/:") != -1) {
-        recProcess(Wxcofig, resData);
-        return false;
+  var user = req.query.user;
+  base.Distinguish(user, (_msg)=> {
+    var Rebate = _msg[0].Rebate // 返利比例
+    var site_name = _msg[0].site_name // 网站名称 （小欢有）
+    var _da;
+    const resData = res;
+    req.on("data",function(data){
+      /*微信服务器传过来的是xml格式的，是buffer类型，因为js本身只有字符串数据类型，所以需要通过toString把xml转换为字符串*/
+      _da = data.toString("utf-8");
+    });
+    req.on("end",function(){
+      var text = '';
+    xmlreader.read(_da, (err, res) => {
+      if(null !== err ){
+        return '';
       }
-      // 如果带有链接
-      if(text.indexOf('https') != -1){
-        // 如果连接带有id就直接获取id
-        if(text.indexOf('?id') != -1){
-          const id = base.getUrlParam(text);
-          wechatOutReply(id, Wxcofig, resData);
+      const Wxcofig = {
+        ToUserName: getXMLNodeValue('ToUserName',_da),
+        FromUserName: getXMLNodeValue('FromUserName',_da),
+        CreateTime: getXMLNodeValue('CreateTime',_da),
+        MsgType: getXMLNodeValue('MsgType',_da),
+      }
+      if (res.xml.MsgType.text() == 'image' || res.xml.MsgType.text() == 'event' || res.xml.MsgType.text() == 'voice') {
+          recProcess(Wxcofig, resData, site_name);
+          return false;
+      }
+      if (res.xml.MsgType.text() == 'text') {
+        text = res.xml.Content.text();
+        if (text == '【收到不支持的消息类型，暂无法显示】'|| text.indexOf("/:") != -1) {
+          recProcess(Wxcofig, resData, site_name);
           return false;
         }
-        var url = text.substring(text.indexOf('https:'), text.indexOf(' 点击链接'));
-        MyMethod.dismantlID(url,(id)=> {
-          wechatOutReply(id,Wxcofig ,resData);
-        })
-      } else{
-        var short_links = 'http://www.xiaohuanzi.cn/search?searchName='+text;
-        var trans_url = 'http://api.t.sina.com.cn/short_url/shorten.json?source=2815391962&url_long='+url_encode(short_links);
-        var duanUrl = '';
-        request(trans_url, (err, res, body)=> {
-          if (!err && res.statusCode == 200) {
-            var html ='';
-             duanUrl = JSON.parse(body)[0].url_short;
-             html +='<xml>';
-             html +='<ToUserName>'+Wxcofig.FromUserName+'</ToUserName>';
-             html +='<FromUserName>'+Wxcofig.ToUserName+'</FromUserName>';
-             html +='<CreateTime>'+Wxcofig.CreateTime+'</CreateTime>';
-             html +='<MsgType>'+Wxcofig.MsgType+'</MsgType> ';
-             html +=`<Content>兄dei，以为你找到【${text}】相关商品\r\n\r\n点击购买☛${duanUrl}\r\n\r\n网站收录商品有限，建议直接分享淘宝链接查询优惠~</Content>`;
-             html +='</xml>';
-             return resData.send(html);
-           }
-         });
-      }
-     }
+        // 如果带有链接
+        if(text.indexOf('https') != -1){
+          // 如果连接带有id就直接获取id
+          if(text.indexOf('?id') != -1){
+            const id = base.getUrlParam(text);
+            wechatOutReply(id, Wxcofig, resData, Rebate);
+            return false;
+          }
+          var url = text.substring(text.indexOf('https:'), text.indexOf(' 点击链接'));
+          MyMethod.dismantlID(url,(id)=> {
+            wechatOutReply(id,Wxcofig ,resData, Rebate);
+          })
+        } else{
+          var short_links = 'http://www.xiaohuanzi.cn/search?searchName='+text;
+          var trans_url = 'http://api.t.sina.com.cn/short_url/shorten.json?source=2815391962&url_long='+url_encode(short_links);
+          var duanUrl = '';
+          request(trans_url, (err, res, body)=> {
+            if (!err && res.statusCode == 200) {
+              var html ='';
+               duanUrl = JSON.parse(body)[0].url_short;
+               html +='<xml>';
+               html +='<ToUserName>'+Wxcofig.FromUserName+'</ToUserName>';
+               html +='<FromUserName>'+Wxcofig.ToUserName+'</FromUserName>';
+               html +='<CreateTime>'+Wxcofig.CreateTime+'</CreateTime>';
+               html +='<MsgType>'+Wxcofig.MsgType+'</MsgType> ';
+               html +=`<Content>兄dei，以为你找到【${text}】相关商品\r\n\r\n点击购买☛${duanUrl}\r\n\r\n网站收录商品有限，建议直接分享淘宝链接查询优惠~</Content>`;
+               html +='</xml>';
+               return resData.send(html);
+             }
+           });
+        }
+       }
+      });
     });
   });
 });
@@ -246,7 +224,7 @@ function wechatRobotOutReply(id,resData){
   })
 
 }
-function wechatOutReply(id, Wxcofig, resData) {
+function wechatOutReply(id, Wxcofig, resData, Rebate) {
   var taobaoUrl = `https://item.taobao.com/item.htm?id=${id}`;
   client.execute('taobao.tbk.dg.material.optional', {
     'adzone_id':'57801250099',
@@ -279,7 +257,7 @@ function wechatOutReply(id, Wxcofig, resData) {
       })
       var short_links = 'http://www.xiaohuanzi.cn/shopDetail?item_id='+parseInt(id);
       var trans_url = 'http://api.t.sina.com.cn/short_url/shorten.json?source=2815391962&url_long='+url_encode(short_links);
-      var redenvelopes = Math.floor((Math.floor((map_data.commission_rate / 100).toFixed(2) * (map_data.zk_final_price - map_data.coupon_amount)) / 100) * 0.7 * 100) / 100;
+      var redenvelopes = Math.floor((Math.floor((map_data.commission_rate / 100).toFixed(2) * (map_data.zk_final_price - map_data.coupon_amount)) / 100) * Number(Rebate) * 100) / 100;
       request(trans_url, (err, res, body)=> {
         if (!err && res.statusCode == 200) {
           var html ='';
@@ -319,6 +297,9 @@ app.post('/api/user/register', (req, res) => {
     const jsonData = {
       userName: userName,
       password: newPas,
+      type: 1,
+      Rebate: '0.5',
+      site_name: '小欢有劵'
     }
     mongodb.find('userList',{userName: userName}, (err, msg) => {
       if (msg.length > 0) {
@@ -368,10 +349,7 @@ app.post('/api/user/login', (req, res) => {
         res.send({
           code: 200,
           message:'登录成功',
-          userInfo: {
-            userName: msg[0].userName,
-            token:msg[0]._id,
-          }
+          userInfo: msg[0]
         });
         return false;
       } else {

@@ -152,6 +152,32 @@ module.exports = function(app) {
       }
     });
   });
+  // 订单查询
+  app.get('/api/orderInquiry', (req, res)=> {
+    mongodb.find('order_details', {"trade_id": parseInt(req.query.trade_id)}, (err, msg)=> {
+      if(err) {
+        return res.send({code: 201, data: err});
+      } else {
+        return res.send({code: 200,data: msg});
+      }
+    });
+  });
+  app.get('/api/modifyingData', (req, res)=> {
+    var userName = req.query.userName;
+    var site_name = req.query.site_name;
+    var Rebate = req.query.Rebate;
+    var id = req.query.id;
+    console.log(id);
+    mongodb.update('userList',{"_id": ObjectId(req.query.id)}, {"userName": userName, "site_name": site_name, "site_name": Rebate},(err, response)=>{
+      mongodb.find('userList', {"_id": ObjectId(req.query.id)}, (err, msg)=> {
+        if(err) {
+          return res.send({code: 201, data: err});
+        } else {
+          return res.send({code: 200,data: msg[0]});
+        }
+      })
+    });
+  })
   // 获取订单信息
   // MyMethod.get_order_details();
 }

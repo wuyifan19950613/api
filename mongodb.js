@@ -73,6 +73,17 @@ const base = {
       })
     });
   },
+  update: (collectionName, condition, data , cb) => {
+    connectDB((err, db) => {
+      const dbo = db.db(common.setName);
+      const updateStr = {$set: data};
+      dbo.collection(collectionName).update(condition, updateStr, (err, res)=> {
+        if (err) throw err;
+        cb(err, res);
+        db.close();
+      })
+    });
+  },
   // 删除数据
   deleteOne: (collectionName, data , cb) => {
     connectDB((err, db) => {

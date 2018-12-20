@@ -1,7 +1,7 @@
 const https = require("https");
 const iconv = require("iconv-lite");
 var request = require('request');
-
+const mongodb = require('../mongodb.js');
 var MyMethod = {
   // 获取商品id
   dismantlID: async (url, cb)=> {
@@ -64,7 +64,8 @@ var MyMethod = {
       },
       body: {
         "fields":"tb_trade_parent_id,tk_status,tb_trade_id,num_iid,item_title,item_num,price,pay_price,seller_nick,seller_shop_title,commission,commission_rate,unid,create_time,earning_time,tk3rd_pub_id,tk3rd_site_id,tk3rd_adzone_id,relation_id",
-        "start_time": MyMethod.getNowFormatDate(),
+        // "start_time": MyMethod.getNowFormatDate(),
+        "start_time": '2018-12-12 00:00:00',
         "span":1200,
         "page_size":100,
         "tk_status":1,
@@ -83,10 +84,12 @@ var MyMethod = {
             }
           }
         }
+      } else{
+        MyMethod.get_order_details();
       }
       setInterval(()=> {
         MyMethod.get_order_details();
-      },60000)
+      },300000)
     });
   }
 }

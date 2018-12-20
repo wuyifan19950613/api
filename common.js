@@ -1,3 +1,4 @@
+const mongodb = require('./mongodb.js');
 const base = {
   phoneModel: (req) => {
     var ua = req.headers['user-agent'],
@@ -42,6 +43,12 @@ const base = {
     const index = v.indexOf('减');
     const result = parseInt(v.substr(index + 1,v.length));
     return result;
+  },
+  // // 根据识别码查询用户信息
+  Distinguish: (user, cb)=> {
+    mongodb.find('userList', {"Distinguish": user}, (err, msg) => {
+      cb(msg)
+    });
   },
 }
 
