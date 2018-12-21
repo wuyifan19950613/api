@@ -222,5 +222,5 @@ module.exports = function(app) {
     });
   })
   // 获取订单信息
-  // MyMethod.get_order_details();
+  MyMethod.get_order_details();
 }
