@@ -302,6 +302,7 @@ app.post('/api/user/register', (req, res) => {
       Rebate: '0.5',
       site_name: '小欢有劵',
       pid: 57801250099,
+      Distinguish: 'wuyifan'
     }
     mongodb.find('userList',{userName: userName}, (err, msg) => {
       if (msg.length > 0) {
