@@ -47,7 +47,11 @@ const base = {
   // // 根据识别码查询用户信息
   Distinguish: (user, cb)=> {
     mongodb.find('userList', {"Distinguish": user}, (err, msg) => {
-      cb(msg)
+      if (err) {
+        return err
+      } else {
+        cb(msg)
+      }
     });
   },
 }
