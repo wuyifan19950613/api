@@ -188,7 +188,7 @@ module.exports = function(app) {
     var site_name = req.query.site_name;
     var Rebate = req.query.Rebate;
     var id = req.query.id;
-    mongodb.update('userList',{"_id": ObjectId(req.query.id)}, {"userName": userName, "site_name": site_name, "site_name": Rebate},(err, response)=>{
+    mongodb.update('userList',{"_id": ObjectId(req.query.id)}, {"userName": userName, "site_name": site_name, "Rebate": Rebate},(err, response)=>{
       mongodb.find('userList', {"_id": ObjectId(req.query.id)}, (err, msg)=> {
         if(err) {
           return res.send({code: 201, data: err});
