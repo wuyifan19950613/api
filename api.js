@@ -300,7 +300,8 @@ app.post('/api/user/register', (req, res) => {
       password: newPas,
       type: 1,
       Rebate: '0.5',
-      site_name: '小欢有劵'
+      site_name: '小欢有劵',
+      pid: 57801250099,
     }
     mongodb.find('userList',{userName: userName}, (err, msg) => {
       if (msg.length > 0) {
