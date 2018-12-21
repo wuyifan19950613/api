@@ -118,8 +118,9 @@ app.get('/api/weixin', (req, res) => {
 app.post('/api/weixin', (req, res) => {
   var user = req.query.user;
   base.Distinguish(user, (_msg)=> {
-    var Rebate = _msg[0].Rebate // 返利比例
-    var site_name = _msg[0].site_name // 网站名称 （小欢有）
+    var Rebate = _msg[0].Rebate; // 返利比例
+    var site_name = _msg[0].site_name; // 网站名称 （小欢有）
+    var pid = _msg[0].pid;
     var _da;
     const resData = res;
     req.on("data",function(data){
@@ -153,12 +154,12 @@ app.post('/api/weixin', (req, res) => {
           // 如果连接带有id就直接获取id
           if(text.indexOf('?id') != -1){
             const id = base.getUrlParam(text);
-            wechatOutReply(id, Wxcofig, resData, Rebate);
+            wechatOutReply(id, Wxcofig, resData, Rebate, pid);
             return false;
           }
           var url = text.substring(text.indexOf('https:'), text.indexOf(' 点击链接'));
           MyMethod.dismantlID(url,(id)=> {
-            wechatOutReply(id,Wxcofig ,resData, Rebate);
+            wechatOutReply(id,Wxcofig ,resData, Rebate, pid);
           })
         } else{
           var short_links = 'http://www.xiaohuanzi.cn/search?searchName='+text;
@@ -224,10 +225,10 @@ function wechatRobotOutReply(id,resData){
   })
 
 }
-function wechatOutReply(id, Wxcofig, resData, Rebate) {
+function wechatOutReply(id, Wxcofig, resData, Rebate, pid) {
   var taobaoUrl = `https://item.taobao.com/item.htm?id=${id}`;
   client.execute('taobao.tbk.dg.material.optional', {
-    'adzone_id':'57801250099',
+    'adzone_id': pid,
     'platform': '2',
     'sort': '_des,tk_rate',
     'q': `${taobaoUrl}`,

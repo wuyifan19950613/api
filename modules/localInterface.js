@@ -154,20 +154,40 @@ module.exports = function(app) {
   });
   // 订单查询
   app.get('/api/orderInquiry', (req, res)=> {
-    mongodb.find('order_details', {"trade_id": parseInt(req.query.trade_id)}, (err, msg)=> {
+    mongodb.find('userList', {"_id": ObjectId(req.headers.token)}, (err, msg)=> {
       if(err) {
         return res.send({code: 201, data: err});
       } else {
-        return res.send({code: 200,data: msg});
+        var data = {};
+        if (req.query.trade_id) {
+          data = {
+            "trade_id": req.query.trade_id ? parseInt(req.query.trade_id) : '',
+          }
+        }else if (req.query.tk_status !== '1') {
+          data = {
+            adzone_id: msg[0].pid,
+            "tk_status": req.query.tk_status ? parseInt(req.query.tk_status) : '',
+          };
+        } else {
+          data = {
+            adzone_id: msg[0].pid,
+          }
+        }
+        mongodb.find('order_details', data, (err, _msg)=> {
+          if(err) {
+            return res.send({code: 201, data: err});
+          } else {
+            return res.send({code: 200,data: _msg});
+          }
+        });
       }
-    });
+    })
   });
   app.get('/api/modifyingData', (req, res)=> {
     var userName = req.query.userName;
     var site_name = req.query.site_name;
     var Rebate = req.query.Rebate;
     var id = req.query.id;
-    console.log(id);
     mongodb.update('userList',{"_id": ObjectId(req.query.id)}, {"userName": userName, "site_name": site_name, "site_name": Rebate},(err, response)=>{
       mongodb.find('userList', {"_id": ObjectId(req.query.id)}, (err, msg)=> {
         if(err) {
@@ -176,6 +196,29 @@ module.exports = function(app) {
           return res.send({code: 200,data: msg[0]});
         }
       })
+    });
+  });
+  app.get('/api/userEdit', (req, res)=> {
+    var type = req.query.type;
+    var pid = req.query.pid;
+    var id = req.query.id;
+    mongodb.update('userList',{"_id": ObjectId(req.query.id)}, {"type": type, "pid": pid},(err, response)=>{
+      mongodb.find('userList', {"_id": ObjectId(req.query.id)}, (err, msg)=> {
+        if(err) {
+          return res.send({code: 201, data: err});
+        } else {
+          return res.send({code: 200,data: msg[0]});
+        }
+      })
+    });
+  });
+  app.get('/api/userAll', (req, res)=> {
+    mongodb.find('userList', {}, (err, msg)=> {
+      if(err) {
+        return res.send({code: 201, data: err});
+      } else {
+        return res.send({code: 200,data: msg});
+      }
     });
   })
   // 获取订单信息
