@@ -50,6 +50,7 @@ const base = {
       if (err) {
         return err
       } else {
+        console.log(msg);
         cb(msg)
       }
     });
