@@ -84,12 +84,10 @@ var MyMethod = {
             }
           }
         }
-      } else{
-        MyMethod.get_order_details();
       }
       setInterval(()=> {
         MyMethod.get_order_details();
-      },300000)
+      },600000)
     });
   }
 }
