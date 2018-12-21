@@ -52,7 +52,6 @@ const base = {
   },
   // 查询数据
   find: (collectionName, data , cb) => {
-    console.log(data);
     connectDB((err, db) => {
       const dbo = db.db(common.setName);
       dbo.collection(collectionName).find(data).toArray((err, res)=> {
