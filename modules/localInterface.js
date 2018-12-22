@@ -222,5 +222,12 @@ module.exports = function(app) {
     });
   });
   // 获取订单信息
-  MyMethod.get_order_details();
+  var t = null ;
+  t = setInterval(function(){
+    MyMethod.get_order_details();
+  }, 60000);
+  clearInterval(t);
+  t = setInterval(function(){
+    MyMethod.get_order_details();
+  }, 60000);
 }
