@@ -84,16 +84,22 @@ var MyMethod = {
               });
             }
           }
-          setInterval(()=> {
+          var ref = setInterval(()=> {
             MyMethod.get_order_details();
           },600000);
-          return false;
+          clearInterval(ref);
+          ref = setInterval(()=> {
+            MyMethod.get_order_details();
+          },600000);
         }
       }else {
-        setInterval(()=> {
+        var ref = setInterval(()=> {
           MyMethod.get_order_details();
         },600000);
-        return false;
+        clearInterval(ref);
+        ref = setInterval(()=> {
+          MyMethod.get_order_details();
+        },600000);
       }
     });
   }
