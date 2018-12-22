@@ -86,7 +86,7 @@ var MyMethod = {
           setInterval(()=> {
             MyMethod.get_order_details();
           },600000);
-          return fasle;
+          return false;
         }
       }else {
         setInterval(()=> {
