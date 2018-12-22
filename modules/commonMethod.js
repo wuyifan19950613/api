@@ -84,6 +84,11 @@ var MyMethod = {
               });
             }
           }
+          var t = null ;
+          t = setInterval(function(){
+            MyMethod.get_order_details();
+          }, 60000);
+          clearInterval(t);
         }
       }
     });
