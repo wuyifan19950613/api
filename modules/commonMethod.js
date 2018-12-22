@@ -83,11 +83,17 @@ var MyMethod = {
               });
             }
           }
+          setInterval(()=> {
+            MyMethod.get_order_details();
+          },600000);
+          return fasle;
         }
+      }else {
+        setInterval(()=> {
+          MyMethod.get_order_details();
+        },600000);
+        return false;
       }
-      setInterval(()=> {
-        MyMethod.get_order_details();
-      },600000)
     });
   }
 }
