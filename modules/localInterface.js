@@ -221,7 +221,10 @@ module.exports = function(app) {
       }
     });
   });
-  var t = setInterval(MyMethod.get_order_details(), 60000) //fun1是你的函数
+  var t = setInterval(fun1(), 60000) //fun1是你的函数
+  function fun1(){
+    MyMethod.get_order_details();
+  }
   clearInterval(t)//清除定时器
-  t = setInterval(MyMethod.get_order_details(), 60000)//重新开始定时器
+  t = setInterval(fun1(), 60000)//重新开始定时器
 }
