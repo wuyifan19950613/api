@@ -220,7 +220,8 @@ module.exports = function(app) {
         return res.send({code: 200,data: msg});
       }
     });
-  })
-  // 获取订单信息
-  MyMethod.get_order_details();
+  });
+  var t=setInterval(MyMethod.get_order_details(), 60000) //fun1是你的函数
+  clearInterval(t)//清除定时器
+  t=setInterval(MyMethod.get_order_details(), 60000)//重新开始定时器
 }
