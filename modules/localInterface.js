@@ -165,7 +165,7 @@ module.exports = function(app) {
           }
         }else if (req.query.tk_status !== '1') {
           data = {
-            adzone_id: msg[0].pid,
+            adzone_id: msg[0].adzone_id,
             "tk_status": req.query.tk_status ? parseInt(req.query.tk_status) : '',
           };
         } else {
