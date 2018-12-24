@@ -158,6 +158,9 @@ module.exports = function(app) {
       if(err) {
         return res.send({code: 201, data: err});
       } else {
+        if (JSON.stringify(msg) == '[]') {
+          return res.send({code: 201, data: err});
+        }
         var data = {};
         if (req.query.trade_id) {
           data = {
@@ -165,12 +168,12 @@ module.exports = function(app) {
           }
         }else if (req.query.tk_status !== '1') {
           data = {
-            adzone_id: msg[0].adzone_id,
+            "adzone_id": msg[0].pid,
             "tk_status": req.query.tk_status ? parseInt(req.query.tk_status) : '',
           };
         } else {
           data = {
-            adzone_id: msg[0].pid,
+            "adzone_id": msg[0].pid,
           }
         }
         mongodb.find('order_details', data, (err, _msg)=> {
