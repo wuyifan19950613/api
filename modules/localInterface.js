@@ -159,7 +159,7 @@ module.exports = function(app) {
         return res.send({code: 201, data: err});
       } else {
         if (JSON.stringify(msg) == '[]') {
-          return res.send({code: 201, data: err});
+          return res.send({code: 201, data: msg});
         }
         var data = {};
         if (req.query.trade_id) {
