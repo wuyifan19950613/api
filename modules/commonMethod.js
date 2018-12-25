@@ -55,7 +55,7 @@ var MyMethod = {
     return currentdate;
   },
   get_order_details: ()=> {
-    MyMethod.getNowFormatDate()
+    console.log(MyMethod.getNowFormatDate());
     request({
       url: 'http://gateway.kouss.com/tbpub/orderGet',
       method: "POST",
@@ -75,7 +75,6 @@ var MyMethod = {
       }
     }, function(error, response, body) {
       console.log(body)
-      console.log(MyMethod.getNowFormatDate())
       if (!error && response.statusCode == 200) {
         if (body.tbk_sc_order_get_response) {
           var order_list = body.tbk_sc_order_get_response.results.n_tbk_order;
