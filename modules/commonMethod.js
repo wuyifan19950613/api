@@ -55,6 +55,7 @@ var MyMethod = {
     return currentdate;
   },
   get_order_details: ()=> {
+    MyMethod.getNowFormatDate()
     request({
       url: 'http://gateway.kouss.com/tbpub/orderGet',
       method: "POST",
@@ -84,7 +85,7 @@ var MyMethod = {
               });
             }
           }
-        
+
         }
       }
     });
