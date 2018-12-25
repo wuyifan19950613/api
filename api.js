@@ -182,6 +182,7 @@ app.post('/api/weixin', (req, res) => {
             if (!err && res.statusCode == 200) {
               var html ='';
                duanUrl = JSON.parse(body)[0].url_short;
+               console.log(JSON.parse(body)[0])
                html +='<xml>';
                html +='<ToUserName>'+Wxcofig.FromUserName+'</ToUserName>';
                html +='<FromUserName>'+Wxcofig.ToUserName+'</FromUserName>';
