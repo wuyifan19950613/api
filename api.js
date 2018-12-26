@@ -188,7 +188,7 @@ app.post('/api/weixin', (req, res) => {
                html +='<FromUserName>'+Wxcofig.ToUserName+'</FromUserName>';
                html +='<CreateTime>'+Wxcofig.CreateTime+'</CreateTime>';
                html +='<MsgType>'+Wxcofig.MsgType+'</MsgType> ';
-               html +=`<Content>兄dei，请直接分享淘宝链接搜索商品（不是标题哦！）~</Content>`;
+               html +=`<Content>兄dei，请直接分享宝贝链接搜索哦~\r\n不是标题哦！</Content>`;
                html +='</xml>';
                return resData.send(html);
            //   }
