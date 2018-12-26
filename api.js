@@ -1,5 +1,6 @@
 const express = require('express');
 const app = express();
+let fs = require('fs-extra');
 const moment = require('moment')
     //导入cors模块,该模块为跨域所用
 const cors = require('cors');
@@ -175,6 +176,8 @@ app.post('/api/weixin', (req, res) => {
             wechatOutReply(id,Wxcofig ,resData, Rebate, pid);
           })
         } else{
+          console.log(new Date())
+          fs.appendFileSync('./commodityName.txt','\r\n'+MyMethod.getNowFormatDate(1)+'\r\n商品标题：'+text+'\r\n');
           // var short_links = 'http://www.xiaohuanzi.cn/search?searchName='+text;
           // var trans_url = 'http://api.t.sina.com.cn/short_url/shorten.json?source=2815391962&url_long='+url_encode(short_links);
           // var duanUrl = '';
