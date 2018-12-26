@@ -175,24 +175,24 @@ app.post('/api/weixin', (req, res) => {
             wechatOutReply(id,Wxcofig ,resData, Rebate, pid);
           })
         } else{
-          var short_links = 'http://www.xiaohuanzi.cn/search?searchName='+text;
-          var trans_url = 'http://api.t.sina.com.cn/short_url/shorten.json?source=2815391962&url_long='+url_encode(short_links);
-          var duanUrl = '';
-          request(trans_url, (err, res, body)=> {
-            if (!err && res.statusCode == 200) {
+          // var short_links = 'http://www.xiaohuanzi.cn/search?searchName='+text;
+          // var trans_url = 'http://api.t.sina.com.cn/short_url/shorten.json?source=2815391962&url_long='+url_encode(short_links);
+          // var duanUrl = '';
+          // request(trans_url, (err, res, body)=> {
+          //   if (!err && res.statusCode == 200) {
               var html ='';
-               duanUrl = JSON.parse(body)[0].url_short;
-               console.log(JSON.parse(body)[0])
+          //      duanUrl = JSON.parse(body)[0].url_short;
+          //      console.log(JSON.parse(body)[0])
                html +='<xml>';
                html +='<ToUserName>'+Wxcofig.FromUserName+'</ToUserName>';
                html +='<FromUserName>'+Wxcofig.ToUserName+'</FromUserName>';
                html +='<CreateTime>'+Wxcofig.CreateTime+'</CreateTime>';
                html +='<MsgType>'+Wxcofig.MsgType+'</MsgType> ';
-               html +=`<Content>兄dei，以为你找到【${text}】相关商品\r\n\r\n点击购买☛${duanUrl}\r\n\r\n网站收录商品有限，建议直接分享淘宝链接查询优惠~</Content>`;
+               html +=`<Content>兄dei，请直接分享淘宝链接搜索商品（不是标题哦！）~</Content>`;
                html +='</xml>';
                return resData.send(html);
-             }
-           });
+           //   }
+           // });
         }
        }
       });
