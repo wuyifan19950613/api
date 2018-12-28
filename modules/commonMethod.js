@@ -37,6 +37,7 @@ var MyMethod = {
     var strDate = date.getDate();
     var hour = date.getHours();
     var minutes = date.getMinutes();
+    var Second = date.getSeconds();
     if (month >= 1 && month <= 9) {
         month = "0" + month;
     }
@@ -49,14 +50,18 @@ var MyMethod = {
     if (minutes >= 0 && minutes <= 9) {
             minutes = "0" + minutes;
     }
+    if (Second >= 0 && Second <= 9) {
+        Second = "0" + Second;
+    }
     var currentdate = date.getFullYear() + seperator1 + month + seperator1 + strDate
             + " " + hour + seperator2 + minutes
-            + seperator2 + date.getSeconds();
+            + seperator2 + Second;
     return currentdate;
   },
-  get_order_details: ()=> {
-    console.log(MyMethod.getNowFormatDate(20));
-    request({
+  get_order_details: async ()=> {
+    var start_time = await MyMethod.getNowFormatDate(20);
+    console.log(start_time);
+    await request({
       url: 'http://gateway.kouss.com/tbpub/orderGet',
       method: "POST",
       json: true,
@@ -65,7 +70,7 @@ var MyMethod = {
       },
       body: {
         "fields":"tb_trade_parent_id,tk_status,tb_trade_id,num_iid,item_title,item_num,price,pay_price,seller_nick,seller_shop_title,commission,commission_rate,unid,create_time,earning_time,tk3rd_pub_id,tk3rd_site_id,tk3rd_adzone_id,relation_id",
-        "start_time": MyMethod.getNowFormatDate(20),
+        "start_time": start_time,
         // "start_time": '2018-12-12 00:00:00',
         "span":1200,
         "page_size":100,
