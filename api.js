@@ -271,8 +271,8 @@ function wechatOutReply(id, Wxcofig, resData, Rebate, pid) {
       map_data.item_id = num_iid;
       map_data.coupon_click_url = coupon_share_url;
       map_data.coupon_amount = coupon_info;
-      mongodb.updateMany('product_list',{item_id:map_data.item_id}, map_data,(err, response)=>{
-      })
+      // mongodb.updateMany('product_list',{item_id:map_data.item_id}, map_data,(err, response)=>{
+      // })
       var short_links = 'http://www.xiaohuanzi.cn/shopDetail?item_id='+parseInt(id);
       var trans_url = 'http://api.t.sina.com.cn/short_url/shorten.json?source=2815391962&url_long='+url_encode(short_links);
       var redenvelopes = Math.floor((Math.floor((map_data.commission_rate / 100).toFixed(2) * (map_data.zk_final_price - map_data.coupon_amount)) / 100) * Number(Rebate) * 100) / 100;
