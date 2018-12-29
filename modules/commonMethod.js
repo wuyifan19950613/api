@@ -58,8 +58,8 @@ var MyMethod = {
             + seperator2 + Second;
     return currentdate;
   },
-  get_order_details: async ()=> {
-    var start_time = await MyMethod.getNowFormatDate(20);
+  get_order_details: async (time, order_query_type, cb)=> {
+    var start_time = time ? time : await MyMethod.getNowFormatDate(20);
     console.log(start_time);
     await request({
       url: 'http://gateway.kouss.com/tbpub/orderGet',
@@ -71,11 +71,11 @@ var MyMethod = {
       body: {
         "fields":"tb_trade_parent_id,tk_status,tb_trade_id,num_iid,item_title,item_num,price,pay_price,seller_nick,seller_shop_title,commission,commission_rate,unid,create_time,earning_time,tk3rd_pub_id,tk3rd_site_id,tk3rd_adzone_id,relation_id",
         "start_time": start_time,
-        // "start_time": '2018-12-12 00:00:00',
+        // "start_time": '2018-12-23 23:07:00',
         "span":1200,
         "page_size":100,
         "tk_status":1,
-        "order_query_type":"create_time",
+        "order_query_type": order_query_type,
         "session":"70000100c4844973c1cbd9e8b39753c9a39d169872f88da0dfec9dd80ee41f004cd5f881746586102"
       }
     }, function(error, response, body) {
@@ -86,6 +86,9 @@ var MyMethod = {
           if(order_list){
             for (var i = 0; i < order_list.length; i++) {
               mongodb.updateMany('order_details', {trade_id:order_list[i].trade_id}, order_list[i],(err, response)=>{
+                if (cb) {
+                  cb(response);
+                }
               });
             }
           }

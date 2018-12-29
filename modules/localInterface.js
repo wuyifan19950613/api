@@ -158,28 +158,22 @@ module.exports = function(app) {
       if(err) {
         return res.send({code: 201, data: err});
       } else {
-        if (JSON.stringify(msg) == '[]') {
-          return res.send({code: 201, data: msg});
+        var data = {
+          "adzone_id": msg[0].pid,
         }
-        var data = {};
-        if (req.query.trade_id) {
-          data = {
-            "trade_id": req.query.trade_id ? parseInt(req.query.trade_id) : '',
-          }
-        }else if (req.query.tk_status !== '1') {
-          data = {
-            "adzone_id": msg[0].pid,
-            "tk_status": req.query.tk_status ? parseInt(req.query.tk_status) : '',
-          };
-        } else {
-          data = {
-            "adzone_id": msg[0].pid,
-          }
-        }
+        var babyInfo = [];
         mongodb.find('order_details', data, (err, _msg)=> {
           if(err) {
             return res.send({code: 201, data: err});
           } else {
+            for ( var i = 0; i < _msg.length; i ++) {
+              var single_baby = {};
+              single_baby.title = _msg[i].item_title;
+              single_baby.num_iid = _msg[i].num_iid;
+              single_baby.seller_shop_title = _msg[i].seller_shop_title;
+              single_baby.pub_share_pre_fee = _msg[i].pub_share_pre_fee;
+              console.log(babyInfo)
+            }
             return res.send({code: 200,data: _msg});
           }
         });
@@ -225,12 +219,15 @@ module.exports = function(app) {
     });
   });
   // 获取订单信息
+  // create_time 创建时间 settle_time 结算时间
+  // MyMethod.get_order_details('2018-12-26 18:47:22', 'settle_time');
+  // MyMethod.get_order_details('2018-12-26 18:47:22', 'create_time');
   var t = null ;
   t = setInterval(function(){
     MyMethod.get_order_details();
-  }, 60000);
+  }, 10000);
   clearInterval(t);
   t = setInterval(function(){
     MyMethod.get_order_details();
-  }, 60000);
+  }, 10000);
 }
