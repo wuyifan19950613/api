@@ -220,14 +220,23 @@ module.exports = function(app) {
   });
   // 获取订单信息
   // create_time 创建时间 settle_time 结算时间
-  // MyMethod.get_order_details('2018-12-26 18:47:22', 'settle_time');
-  // MyMethod.get_order_details('2018-12-26 18:47:22', 'create_time');
+  // MyMethod.get_order_details('2018-12-23 08:45:41', 'settle_time');
+  // MyMethod.get_order_details('2018-12-12 00:08:58', 'create_time');
   var t = null ;
   t = setInterval(function(){
-    MyMethod.get_order_details();
-  }, 10000);
+    MyMethod.get_order_details('', 'create_time');
+  }, 3000);
   clearInterval(t);
   t = setInterval(function(){
-    MyMethod.get_order_details();
-  }, 10000);
+    MyMethod.get_order_details('', 'create_time');
+  }, 3000);
+  //
+  // var n = null ;
+  // n = setInterval(function(){
+  //   MyMethod.get_order_details('', 'settle_time');
+  // }, 16000);
+  // clearInterval(n);
+  // n = setInterval(function(){
+  //   MyMethod.get_order_details('', 'settle_time');
+  // }, 16000);
 }
