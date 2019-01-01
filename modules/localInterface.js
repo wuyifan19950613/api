@@ -162,18 +162,11 @@ module.exports = function(app) {
           "adzone_id": msg[0].pid,
         }
         var babyInfo = [];
-        mongodb.find('order_details', data, (err, _msg)=> {
+        mongodb.sortFind('order_details', data, (err, _msg)=> {
           if(err) {
             return res.send({code: 201, data: err});
           } else {
-            for ( var i = 0; i < _msg.length; i ++) {
-              var single_baby = {};
-              single_baby.title = _msg[i].item_title;
-              single_baby.num_iid = _msg[i].num_iid;
-              single_baby.seller_shop_title = _msg[i].seller_shop_title;
-              single_baby.pub_share_pre_fee = _msg[i].pub_share_pre_fee;
-              console.log(babyInfo)
-            }
+
             return res.send({code: 200,data: _msg});
           }
         });
@@ -218,25 +211,38 @@ module.exports = function(app) {
       }
     });
   });
+  app.get('/api/settlement', (req, res)=> {
+    var startTime = req.query.startTime;
+    var endTime = req.query.endTime;
+    var adzone_id = req.query.adzone_id;
+    mongodb.find('order_details', {"create_time": {"$gte" : startTime , "$lt" : endTime} , "adzone_id" : adzone_id}, (err, msg)=> {
+      if(err) {
+        return res.send({code: 201, data: err});
+      } else {
+        return res.send({code: 200,data: msg});
+      }
+    })
+  });
+
+
   // 获取订单信息
   // create_time 创建时间 settle_time 结算时间
   // MyMethod.get_order_details('2018-12-23 08:45:41', 'settle_time');
   // MyMethod.get_order_details('2018-12-12 00:08:58', 'create_time');
   var t = null ;
+  var num = 0;
   t = setInterval(function(){
     MyMethod.get_order_details('', 'create_time');
   }, 3000);
   clearInterval(t);
   t = setInterval(function(){
-    MyMethod.get_order_details('', 'create_time');
-  }, 3000);
-  //
-  // var n = null ;
-  // n = setInterval(function(){
-  //   MyMethod.get_order_details('', 'settle_time');
-  // }, 16000);
-  // clearInterval(n);
-  // n = setInterval(function(){
-  //   MyMethod.get_order_details('', 'settle_time');
-  // }, 16000);
+    num ++;
+    if((num % 2) == 1){
+      console.log('create_time');
+      MyMethod.get_order_details('', 'create_time');
+    } else {
+      console.log('settle_time');
+      MyMethod.get_order_details('', 'settle_time');
+    }
+  }, 60000);
 }

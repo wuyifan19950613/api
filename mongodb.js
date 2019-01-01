@@ -61,6 +61,16 @@ const base = {
       })
     });
   },
+  sortFind: (collectionName, data , cb) => {
+    connectDB((err, db) => {
+      const dbo = db.db(common.setName);
+      dbo.collection(collectionName).find(data).sort({_id: -1}).toArray((err, res)=> {
+        if (err) throw err;
+        cb(err, res);
+        db.close();
+      })
+    });
+  },
   // 更新多条数据
   updateMany: (collectionName, condition, data , cb) => {
     connectDB((err, db) => {
