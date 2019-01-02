@@ -238,10 +238,8 @@ module.exports = function(app) {
   t = setInterval(function(){
     num ++;
     if((num % 2) == 1){
-      console.log('create_time');
       MyMethod.get_order_details('', 'create_time');
     } else {
-      console.log('settle_time');
       MyMethod.get_order_details('', 'settle_time');
     }
   }, 60000);
