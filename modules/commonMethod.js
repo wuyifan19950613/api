@@ -85,9 +85,9 @@ var MyMethod = {
           var order_list = body.tbk_sc_order_get_response.results.n_tbk_order;
           if(order_list){
             for (var i = 0; i < order_list.length; i++) {
-              mongodb.updateMany('order_details', {trade_id:order_list[i].trade_id}, order_list[i],(err, response)=>{
+              mongodb.updateMany('order_details', {trade_id:order_list[i].trade_id}, order_list[i],(err, _msg)=>{
                 if (cb) {
-                  cb(response);
+                  cb(_msg);
                 }
               });
             }

@@ -13,11 +13,11 @@ module.exports = function(app) {
     });
     req.on('end', () => {
       body = JSON.parse(body);
-      MyMethod.get_order_details(body.settle_time, 'settle_time', (msg)=> {
+      MyMethod.get_order_details(body.settle_time, body.status == 0 ? 'create_time' : 'settle_time', (msg)=> {
       });
       res.send({
         code: 200,
-        message:'注册成功',
+        message:'更新成功',
       });
     });
   });
