@@ -18,8 +18,9 @@ const client = require('./taobaoApi.js')
 const base = require('./common.js');
 var sha1 = require('sha1');
 var xmlreader = require("xmlreader");
-var shoppingcart = require('./modules/localInterface'); //购物车路由
-var MyMethod = require('./modules/commonMethod'); //购物车路由
+var shoppingcart = require('./modules/localInterface');
+var order = require('./modules/order');
+var MyMethod = require('./modules/commonMethod');
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cors());
 
@@ -44,7 +45,6 @@ function url_encode(url){
     url = url.replace(/\%3F/g, "?");
     url = url.replace(/\%3D/g, "=");
     url = url.replace(/\%26/g, "&");
-
     return url;
 }
 // 自动回复处理
@@ -57,16 +57,10 @@ function recProcess(Wxcofig, resData, site_name) {
   html +='<MsgType><![CDATA[text]]></MsgType>';
   html +=`<Content>(≖ᴗ≖)✧ Hello，我是${site_name}\r\n请按以下说明领取优惠券。\r\n\r\n❶直接发送宝贝链接给我，可以自动查找优惠，90%商品都能找到，详情点击菜单帮助！\r\n\r\n❷发送“XXX”会给您查找有优惠券的商品，比如：卫衣。\r\n\r\n❸直接打开小欢有劵官网：http://www.xiaohuanzi.cn (复制地址用浏览器打开)</Content>`;
   html +='</xml>';
-  // html +='<xml>';
-  // html +='<ToUserName>'+Wxcofig.FromUserName+'</ToUserName>';
-  // html +='<FromUserName>'+Wxcofig.ToUserName+'</FromUserName>';
-  // html +='<CreateTime>'+Wxcofig.CreateTime+'</CreateTime>';
-  // html +='<MsgType><![CDATA[image]]></MsgType>';
-  // html +='<MediaId><![CDATA[media_id] ]></MediaId>';
-  // html +='</xml>';
   return resData.send(html);
 }
 shoppingcart(app);
+order(app);
 // http://wuyifan.free.idcfengye.com
 // 微信机器人自动回复
 app.get('/api/wechatRobot', (req, res)=> {
@@ -332,7 +326,7 @@ app.post('/api/user/register', (req, res) => {
           }
           res.send({
             code: 200,
-            message:'注册成功',
+            message:'更新成功',
           });
         });
       }
