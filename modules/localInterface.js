@@ -154,7 +154,7 @@ module.exports = function(app) {
   });
   // 订单查询
   app.get('/api/orderInquiry', (req, res)=> {
-    mongodb.find('userList', {"_id": ObjectId(req.headers.token)}, (err, msg)=> {
+    mongodb.find('userList', {"token": req.headers.token}, (err, msg)=> {
       if(err) {
         return res.send({code: 201, data: err});
       } else {

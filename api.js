@@ -17,9 +17,11 @@ const ObjectId = require('mongodb').ObjectId;
 const client = require('./taobaoApi.js')
 const base = require('./common.js');
 var sha1 = require('sha1');
+const  uuidv1 = require('uuid/v1');
 var xmlreader = require("xmlreader");
 var shoppingcart = require('./modules/localInterface');
 var order = require('./modules/order');
+var pidArry = require('./modules/pid');
 var MyMethod = require('./modules/commonMethod');
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cors());
@@ -61,6 +63,7 @@ function recProcess(Wxcofig, resData, site_name) {
 }
 shoppingcart(app);
 order(app);
+pidArry(app);
 // http://wuyifan.free.idcfengye.com
 // 微信机器人自动回复
 app.get('/api/wechatRobot', (req, res)=> {
@@ -111,10 +114,8 @@ app.get('/api/weixin', (req, res) => {
   }
 });
 app.post('/api/weixin', (req, res) => {
-  var user = req.query.user;
-  base.Distinguish(user, (_msg)=> {
-
-
+  var token = req.query.token;
+  base.Distinguish(token, (_msg)=> {
     var _da;
     const resData = res;
     req.on("data",function(data){
@@ -140,7 +141,7 @@ app.post('/api/weixin', (req, res) => {
         html +='<FromUserName>'+Wxcofig.ToUserName+'</FromUserName>';
         html +='<CreateTime>'+Wxcofig.CreateTime+'</CreateTime>';
         html +='<MsgType>'+Wxcofig.MsgType+'</MsgType> ';
-        html +=`<Content>你的账户暂时没有权限</Content>`;
+        html +=`<Content>你的账户暂时没有权限,请前往http://www.xiaohuanzi.cn/admin/register</Content>`;
         html +='</xml>';
         return resData.send(html);
       }
@@ -235,13 +236,16 @@ function wechatRobotOutReply(id,resData){
 
 }
 function wechatOutReply(id, Wxcofig, resData, Rebate, pid) {
+  console.log(Rebate)
   var taobaoUrl = `https://item.taobao.com/item.htm?id=${id}`;
   client.execute('taobao.tbk.dg.material.optional', {
+    // 'adzone_id': '81254050461',
     'adzone_id': pid,
     'platform': '2',
     'sort': '_des,tk_rate',
     'q': `${taobaoUrl}`,
   }, function(err, msg) {
+    console.log(err);
     if (err) {
       var html ='';
       html +='<xml>';
@@ -295,6 +299,7 @@ app.post('/api/user/register', (req, res) => {
     body = JSON.parse(body);
     const userName = body.userName;
     const password = body.password;
+    const promoCode = body.promoCode;
     if (!userName || !password) {
       const data = {
         code: 201,
@@ -310,8 +315,10 @@ app.post('/api/user/register', (req, res) => {
       type: 1,
       Rebate: '0.5',
       site_name: '小欢有劵',
-      pid: 57801250099,
-      Distinguish: 'wuyifan'
+      superior_id: promoCode,
+      pid: '',
+      token: uuidv1(),
+      spread_code: MyMethod.randomNumber(8),
     }
     mongodb.find('userList',{userName: userName}, (err, msg) => {
       if (msg.length > 0) {
@@ -320,13 +327,18 @@ app.post('/api/user/register', (req, res) => {
           message:'账号已存在',
         });
       } else {
-        mongodb.insertOne('userList', jsonData, (err, msg)=> {
-          if (err) {
-            return err;
-          }
-          res.send({
-            code: 200,
-            message:'更新成功',
+        mongodb.find('pid', {status: false}, (err, msg)=> {
+          jsonData.pid = msg[0].pid;
+          mongodb.insertOne('userList', jsonData, (err, msg1)=> {
+            if (err) {
+              return err;
+            }
+            mongodb.update('pid',{"pid": msg[0].pid},{'status': true}, (err, msg2)=> {
+              res.send({
+                code: 200,
+                message:'注册成功',
+              });
+            })
           });
         });
       }

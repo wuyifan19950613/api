@@ -87,7 +87,7 @@ const base = {
     connectDB((err, db) => {
       const dbo = db.db(common.setName);
       const updateStr = {$set: data};
-      dbo.collection(collectionName).update(condition, updateStr, (err, res)=> {
+      dbo.collection(collectionName).updateOne(condition, updateStr, (err, res)=> {
         if (err) throw err;
         cb(err, res);
         db.close();
