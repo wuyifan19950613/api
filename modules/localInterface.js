@@ -223,8 +223,33 @@ module.exports = function(app) {
       }
     })
   });
-
-
+  app.post('/api/bindAlipay', (req, res)=> {
+    let body = "";
+    req.on('data', (chunk) => {
+      body += chunk;
+    });
+    req.on('end', () => {
+      body = JSON.parse(body);
+      mongodb.update('userList', {"token": req.headers.token}, {"Email": body.Email,"alipayID" : body.apipayId, "userName": body.userName, "phone": body.phone}, (err, res2)=> {
+        mongodb.find('userList', {"token": req.headers.token}, (err, res1)=> {
+          return res.send({code: 200,data: res1[0]});
+        })
+      })
+    });
+  });
+  // 提现申请接口
+  app.post('/api/cashWithdrawalApplication', (req, res)=> {
+    let body = "";
+    req.on('data', (chunk) => {
+      body += chunk;
+    });
+    req.on('end', () => {
+      body = JSON.parse(body);
+      mongodb.insertOne('application', {"userName": body.userName, "alipayID": body.alipayID, amount: body.amount, "status": 0, "token": req.headers.token}, (err, msg)=> {
+        return res.send({code: 200,data: msg});
+      })
+    });
+  })
   // 获取订单信息
   // create_time 创建时间 settle_time 结算时间
   // MyMethod.get_order_details('2018-12-23 08:45:41', 'settle_time');

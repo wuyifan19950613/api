@@ -297,7 +297,7 @@ app.post('/api/user/register', (req, res) => {
   });
   req.on('end', () => {
     body = JSON.parse(body);
-    const userName = body.userName;
+    const Email = body.Email;
     const password = body.password;
     const promoCode = body.promoCode;
     if (!userName || !password) {
@@ -310,7 +310,7 @@ app.post('/api/user/register', (req, res) => {
     const md5 = crypto.createHash("md5");
     let newPas = md5.update(password).digest("hex");
     const jsonData = {
-      userName: userName,
+      Email: Email,
       password: newPas,
       type: 1,
       Rebate: '0.5',
@@ -319,8 +319,9 @@ app.post('/api/user/register', (req, res) => {
       pid: '',
       token: uuidv1(),
       spread_code: MyMethod.randomNumber(8),
+      amount: 0,
     }
-    mongodb.find('userList',{userName: userName}, (err, msg) => {
+    mongodb.find('userList',{Email: Email}, (err, msg) => {
       if (msg.length > 0) {
         res.send({
           code: 202,
@@ -354,11 +355,11 @@ app.post('/api/user/login', (req, res) => {
   });
   req.on('end', () => {
     body = JSON.parse(body);
-    const userName = body.userName;
+    const Email = body.Email;
     const password = body.password;
     const md5 = crypto.createHash("md5");
     let newPas = md5.update(password).digest("hex");
-    mongodb.find('userList',{userName: userName}, (err, msg) => {
+    mongodb.find('userList',{Email: Email}, (err, msg) => {
       if(err) {
         return res.send({code: 201, data: err});
       }
