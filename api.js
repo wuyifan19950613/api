@@ -300,7 +300,7 @@ app.post('/api/user/register', (req, res) => {
     const Email = body.Email;
     const password = body.password;
     const promoCode = body.promoCode;
-    if (!userName || !password) {
+    if (!Email || !password) {
       const data = {
         code: 201,
         message: '账号密码不能为空',
@@ -319,7 +319,9 @@ app.post('/api/user/register', (req, res) => {
       pid: '',
       token: uuidv1(),
       spread_code: MyMethod.randomNumber(8),
-      amount: 0,
+      amount: 0, //可提现余额
+      estimated_revenue_the_month: 0,
+      estimated_revenue_last_month: 0,
     }
     mongodb.find('userList',{Email: Email}, (err, msg) => {
       if (msg.length > 0) {

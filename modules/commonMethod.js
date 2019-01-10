@@ -3,6 +3,21 @@ const iconv = require("iconv-lite");
 var request = require('request');
 const mongodb = require('../mongodb.js');
 var MyMethod = {
+    days: function(month){
+    var days;
+    if (month == 2) {
+        days = year % 4 == 0 ? 29 : 28;
+    }
+    else if (month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12) {
+        //月份为：1,3,5,7,8,10,12 时，为大月.则天数为31；
+        days = 31;
+    }
+    else {
+        //其他月份，天数为：30.
+        days = 30;
+    }
+    return days;
+  },
   // 获取商品id
   dismantlID: async (url, cb)=> {
     let item_id = '';
@@ -60,7 +75,6 @@ var MyMethod = {
   },
   get_order_details: async (time, order_query_type, cb)=> {
     var start_time = time ? time : await MyMethod.getNowFormatDate(20);
-    console.log(start_time);
     await request({
       url: 'http://gateway.kouss.com/tbpub/orderGet',
       method: "POST",
@@ -79,15 +93,23 @@ var MyMethod = {
         "session":"70000100c4844973c1cbd9e8b39753c9a39d169872f88da0dfec9dd80ee41f004cd5f881746586102"
       }
     }, function(error, response, body) {
-      console.log(body)
       if (!error && response.statusCode == 200) {
         if (body.tbk_sc_order_get_response) {
           var order_list = body.tbk_sc_order_get_response.results.n_tbk_order;
           if(order_list){
             for (var i = 0; i < order_list.length; i++) {
               mongodb.updateMany('order_details', {trade_id:order_list[i].trade_id}, order_list[i],(err, _msg)=>{
-                if (cb) {
-                  cb(_msg);
+                if (_msg.result.nModified == 1) {
+                  var adzone_id = order_list[i-1].adzone_id;
+                  var pub_share_pre_fee = order_list[i-1].pub_share_pre_fee;
+                  if (order_list[i-1].tk_status === 3) {
+                    mongodb.find('userList',{"pid":adzone_id}, (err1,_msg1)=> {
+                      var amount = _msg1[0].estimated_revenue_the_month;
+                      amount = (Number(amount) + Number(pub_share_pre_fee)).toFixed(2);
+                      mongodb.update('userList',{"pid": adzone_id}, {"estimated_revenue_the_month": amount}, (err2, _msg2)=> {
+                      })
+                    })
+                  }
                 }
               });
             }

@@ -211,18 +211,6 @@ module.exports = function(app) {
       }
     });
   });
-  app.get('/api/settlement', (req, res)=> {
-    var startTime = req.query.startTime;
-    var endTime = req.query.endTime;
-    var adzone_id = req.query.adzone_id;
-    mongodb.find('order_details', {"create_time": {"$gte" : startTime , "$lt" : endTime} , "adzone_id" : adzone_id}, (err, msg)=> {
-      if(err) {
-        return res.send({code: 201, data: err});
-      } else {
-        return res.send({code: 200,data: msg});
-      }
-    })
-  });
   app.post('/api/bindAlipay', (req, res)=> {
     let body = "";
     req.on('data', (chunk) => {
@@ -230,7 +218,7 @@ module.exports = function(app) {
     });
     req.on('end', () => {
       body = JSON.parse(body);
-      mongodb.update('userList', {"token": req.headers.token}, {"Email": body.Email,"alipayID" : body.apipayId, "userName": body.userName, "phone": body.phone}, (err, res2)=> {
+      mongodb.update('userList', {"token": req.headers.token}, {"alipayID" : body.apipayId, "userName": body.userName, "phone": body.phone}, (err, res2)=> {
         mongodb.find('userList', {"token": req.headers.token}, (err, res1)=> {
           return res.send({code: 200,data: res1[0]});
         })
@@ -245,27 +233,56 @@ module.exports = function(app) {
     });
     req.on('end', () => {
       body = JSON.parse(body);
-      mongodb.insertOne('application', {"userName": body.userName, "alipayID": body.alipayID, amount: body.amount, "status": 0, "token": req.headers.token}, (err, msg)=> {
-        return res.send({code: 200,data: msg});
-      })
+      mongodb.find('userList', {"token": req.headers.token}, (err, msg)=> {
+        var userAmount = msg[0].amount;
+        mongodb.insertOne('application', {"userName": body.userName, "alipayID": body.alipayID, amount: body.amount, "status": 0, "token": req.headers.token, "creatio_time": MyMethod.getNowFormatDate(0)}, (err, msg)=> {
+          mongodb.update('userList', {"token": req.headers.token}, {"amount": (Number(userAmount) -  Number(body.amount)).toFixed(2)} ,(err, msg1)=> {
+            mongodb.find('userList', {"token": req.headers.token}, (err, msg)=> {
+              return res.send({code: 200, data:{amount: msg[0].amount}});
+            })
+          })
+        })
+      });
     });
+  });
+  // 查询申请提现记录
+  app.get('/api/user/withdrawalsRecord', (req, res)=> {
+    mongodb.sortFind('application', {"token": req.headers.token}, (err, msg)=> {
+      return res.send({code: 200, data: msg});
+    })
   })
+  //获取用户信息
+  app.get('/api/user/info', (req, res)=> {
+    mongodb.find('userList', {"token": req.headers.token}, (err, res1)=> {
+      return res.send({code: 200,data: res1[0]});
+    })
+  });
+  // 结算接口
+  app.get('/api/user/settlement', (req, res)=> {
+    mongodb.find('userList', {}, (err, res1)=>{
+      for (var i = 0; i < res1.length; i++) {
+        mongodb.update('userList', {"token": res1[i].token}, {"estimated_revenue_last_month": Number(res1[i].estimated_revenue_the_month).toFixed(2), "estimated_revenue_the_month": "0.00","amount": (Number(res1[i].amount) + Number(res1[i].estimated_revenue_the_month)).toFixed(2)}, (err, msg)=> {
+        })
+      }
+      return res.send({});
+    })
+  });
   // 获取订单信息
   // create_time 创建时间 settle_time 结算时间
-  // MyMethod.get_order_details('2018-12-23 08:45:41', 'settle_time');
-  // MyMethod.get_order_details('2018-12-12 00:08:58', 'create_time');
-  var t = null ;
-  var num = 0;
-  t = setInterval(function(){
-    MyMethod.get_order_details('', 'create_time');
-  }, 3000);
-  clearInterval(t);
-  t = setInterval(function(){
-    num ++;
-    if((num % 2) == 1){
-      MyMethod.get_order_details('', 'create_time');
-    } else {
-      MyMethod.get_order_details('', 'settle_time');
-    }
-  }, 60000);
+  MyMethod.get_order_details('2019-01-07 12:15:35', 'settle_time');
+  // MyMethod.get_order_details('2018-12-28 21:22:33', 'create_time');
+  // var t = null ;
+  // var num = 0;
+  // t = setInterval(function(){
+  //   MyMethod.get_order_details('', 'settle_time');
+  // }, 3000);
+  // clearInterval(t);
+  // t = setInterval(function(){
+  //   num ++;
+  //   if((num % 2) == 1){
+  //     MyMethod.get_order_details('', 'create_time');
+  //   } else {
+  //     MyMethod.get_order_details('', 'settle_time');
+  //   }
+  // }, 60000);
 }
