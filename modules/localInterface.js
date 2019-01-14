@@ -269,8 +269,8 @@ module.exports = function(app) {
   });
   // 获取订单信息
   // create_time 创建时间 settle_time 结算时间
-  MyMethod.get_order_details('2019-01-07 12:15:35', 'settle_time');
-  // MyMethod.get_order_details('2018-12-28 21:22:33', 'create_time');
+  // MyMethod.get_order_details('2019-01-07 12:15:35', 'settle_time');
+  MyMethod.get_order_details('2018-11-21 15:50:06', 'create_time');
   // var t = null ;
   // var num = 0;
   // t = setInterval(function(){

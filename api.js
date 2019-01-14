@@ -337,10 +337,15 @@ app.post('/api/user/register', (req, res) => {
               return err;
             }
             mongodb.update('pid',{"pid": msg[0].pid},{'status': true}, (err, msg2)=> {
-              res.send({
-                code: 200,
-                message:'注册成功',
-              });
+              mongodb.find('userList', {"spread_code": promoCode}, (err, msg3)=> {
+                var fans_number = parseInt(msg3[0].fans_number) + 1;
+                mongodb.update('userList', {"spread_code": promoCode}, {"fans_number": fans_number}, (err, msg4)=> {
+                  res.send({
+                    code: 200,
+                    message:'注册成功',
+                  });
+                })
+              })
             })
           });
         });
