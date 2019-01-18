@@ -76,7 +76,6 @@ app.get('/api/wechatRobot', (req, res)=> {
       if(url.indexOf('?id') != -1){
         const id = base.getUrlParam(url);
         // wechatOutReply(id, Wxcofig, resData);
-        console.log(id);
         wechatRobotOutReply(id, res)
         return false;
       }
@@ -85,7 +84,6 @@ app.get('/api/wechatRobot', (req, res)=> {
       })
     }
   } else if (text) {
-    console.log(text);
     var short_links = 'http://www.xiaohuanzi.cn/search?searchName='+text;
     var trans_url = 'http://api.t.sina.com.cn/short_url/shorten.json?source=2815391962&url_long='+url_encode(short_links);
     var duanUrl = '';
@@ -166,7 +164,7 @@ app.post('/api/weixin', (req, res) => {
             wechatOutReply(id, Wxcofig, resData, Rebate, pid);
             return false;
           }
-          var url = text.substring(text.indexOf('https:'), text.indexOf(' 点击链接'));
+          var url = text.substring(text.indexOf('https:'), text.indexOf('点击链接'));
           MyMethod.dismantlID(url,(id)=> {
             wechatOutReply(id,Wxcofig ,resData, Rebate, pid);
           })
@@ -178,7 +176,6 @@ app.post('/api/weixin', (req, res) => {
           //   if (!err && res.statusCode == 200) {
               var html ='';
           //      duanUrl = JSON.parse(body)[0].url_short;
-          //      console.log(JSON.parse(body)[0])
                html +='<xml>';
                html +='<ToUserName>'+Wxcofig.FromUserName+'</ToUserName>';
                html +='<FromUserName>'+Wxcofig.ToUserName+'</FromUserName>';
@@ -236,7 +233,6 @@ function wechatRobotOutReply(id,resData){
 
 }
 function wechatOutReply(id, Wxcofig, resData, Rebate, pid) {
-  console.log(Rebate)
   var taobaoUrl = `https://item.taobao.com/item.htm?id=${id}`;
   client.execute('taobao.tbk.dg.material.optional', {
     // 'adzone_id': '81254050461',
@@ -401,7 +397,6 @@ app.get('/api/grabbing/data', (req, res) => {
     var html = "";
     msg.on('data', (data) => {
       html += data;
-      console.log(msg);
     });
     msg.on('end', () => {
     })

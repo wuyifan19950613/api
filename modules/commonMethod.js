@@ -20,6 +20,7 @@ var MyMethod = {
   },
   // 获取商品id
   dismantlID: async (url, cb)=> {
+    console.log(url);
     let item_id = '';
     await https.get(url, (res)=> {
       var datas = [];
@@ -31,7 +32,15 @@ var MyMethod = {
      res.on("end", function () {
        var buff = Buffer.concat(datas, size);
        var result = iconv.decode(buff, "utf8");//转码//var result = buff.toString();//不需要转编码,直接tostring
-       var id = result.substring(result.indexOf("https://a.m.taobao.com/i")+1,result.indexOf('.htm?')).replace(/[^0-9]/ig,"");;
+       console.log(result)
+       var id;
+       if (result.indexOf("https://a.m.taobao.com/i") != -1) {
+         id = result.substring(result.indexOf("https://a.m.taobao.com/i")+1,result.indexOf('.htm?')).replace(/[^0-9]/ig,"");
+       }else if (result.indexOf("https://detail.m.tmall.com/item.htm?id=") != -1){
+         id = result.substring(result.indexOf("https://detail.m.tmall.com/item.htm?id=")+1,result.indexOf('&')).replace(/[^0-9]/ig,"");
+       } else if (result.indexOf("&id=") != -1){
+         id = result.substring(result.indexOf("&id=")+1,result.indexOf('&sourceType')).replace(/[^0-9]/ig,"");
+       }
        if(cb) {
          cb(id);
        }
@@ -75,6 +84,7 @@ var MyMethod = {
   },
   get_order_details: async (time, order_query_type, cb)=> {
     var start_time = time ? time : await MyMethod.getNowFormatDate(20);
+    console.log(start_time)
     await request({
       url: 'http://gateway.kouss.com/tbpub/orderGet',
       method: "POST",
@@ -90,9 +100,10 @@ var MyMethod = {
         "page_size":100,
         "tk_status":1,
         "order_query_type": order_query_type,
-        "session":"70000100c4844973c1cbd9e8b39753c9a39d169872f88da0dfec9dd80ee41f004cd5f881746586102"
+        "session":"700001003414d0f3981bbb095e98d983e61dbff086afb6e9be10f1cbe2eaef3de83e9951746586102"
       }
     }, function(error, response, body) {
+      console.log(body);
       if (!error && response.statusCode == 200) {
         if (body.tbk_sc_order_get_response) {
           var order_list = body.tbk_sc_order_get_response.results.n_tbk_order;
