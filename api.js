@@ -133,14 +133,14 @@ app.post('/api/weixin', (req, res) => {
         MsgType: getXMLNodeValue('MsgType',_da),
       }
       if(JSON.stringify(_msg) == '[]'){
-        var html ='';
-        html +='<xml>';
-        html +='<ToUserName>'+Wxcofig.FromUserName+'</ToUserName>';
-        html +='<FromUserName>'+Wxcofig.ToUserName+'</FromUserName>';
-        html +='<CreateTime>'+Wxcofig.CreateTime+'</CreateTime>';
-        html +='<MsgType>'+Wxcofig.MsgType+'</MsgType> ';
-        html +=`<Content>你的账户暂时没有权限,请前往http://www.xiaohuanzi.cn/admin/register</Content>`;
-        html +='</xml>';
+        var html ='更新中。。';
+        // html +='<xml>';
+        // html +='<ToUserName>'+Wxcofig.FromUserName+'</ToUserName>';
+        // html +='<FromUserName>'+Wxcofig.ToUserName+'</FromUserName>';
+        // html +='<CreateTime>'+Wxcofig.CreateTime+'</CreateTime>';
+        // html +='<MsgType>'+Wxcofig.MsgType+'</MsgType> ';
+        // html +=`<Content>你的账户暂时没有权限,请前往http://www.xiaohuanzi.cn/admin/register</Content>`;
+        // html +='</xml>';
         return resData.send(html);
       }
       var Rebate = _msg[0].Rebate; // 返利比例
