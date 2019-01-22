@@ -541,6 +541,20 @@ app.get('/api/taobao/materialOptional', (req, res)=> {
       return res.send({code:200, msg: msg});
     }
   })
+});
+app.get('/api/taobao/recommend', (req, res)=> {
+  client.execute('taobao.tbk.item.recommend.get', {
+  	'fields':'num_iid,volume,title,pict_url,small_images,coupon_info,reserve_price,zk_final_price,user_type,provcity,item_url',
+  	'num_iid':`${req.query.num_iid}`,
+  	'count':'20',
+  	'platform':'2'
+  }, function(error, response) {
+    if (error) {
+      return res.send({code:201, err: error});
+    } else {
+      return res.send({code:200, data: response});
+    }
+  })
 })
 
 
