@@ -111,6 +111,24 @@ app.get('/api/weixin', (req, res) => {
     console.log('error');
   }
 });
+app.get('/api/smallProgram', (req, res)=> {
+  var text = req.query.text;
+  if(text.indexOf('https') != -1){
+    // 如果连接带有id就直接获取id
+    if(text.indexOf('?id') != -1){
+      const id = base.getUrlParam(text);
+
+      return res.send({code: 200,message:{id: id},});
+    }else {
+      var url = text.substring(text.indexOf('https:'), text.indexOf('点击链接'));
+      MyMethod.dismantlID(url,(id)=> {
+        return res.send({code: 200,message:{id: id},});
+      })
+    }
+  } else {
+    return res.send({code :201, message:'未发现商品'})
+  }
+})
 app.post('/api/weixin', (req, res) => {
   var token = req.query.token;
   base.Distinguish(token, (_msg)=> {
