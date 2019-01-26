@@ -20,6 +20,7 @@ var sha1 = require('sha1');
 const  uuidv1 = require('uuid/v1');
 var xmlreader = require("xmlreader");
 var shoppingcart = require('./modules/localInterface');
+var wechatApplet = require('./modules/wechatApplet');
 var order = require('./modules/order');
 var pidArry = require('./modules/pid');
 var MyMethod = require('./modules/commonMethod');
@@ -62,6 +63,7 @@ function recProcess(Wxcofig, resData, site_name) {
   return resData.send(html);
 }
 shoppingcart(app);
+wechatApplet(app);
 order(app);
 pidArry(app);
 // http://wuyifan.free.idcfengye.com

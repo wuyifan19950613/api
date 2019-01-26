@@ -2,6 +2,7 @@ const https = require("https");
 const iconv = require("iconv-lite");
 var request = require('request');
 const mongodb = require('../mongodb.js');
+const base = require('../common');
 var MyMethod = {
     days: function(month){
     var days;
@@ -110,6 +111,35 @@ var MyMethod = {
           if(order_list){
             for (var i = 0; i < order_list.length; i++) {
               mongodb.updateMany('order_details', {trade_id:order_list[i].trade_id}, order_list[i],(err, _msg)=>{
+                if (order_list[i-1].tk_status == 12) {
+                  console.log(order_list[i-1])
+                  var adzone_id = order_list[i-1].adzone_id;
+                  mongodb.find('weChatUsers',{"pid":adzone_id}, (err1,_msg1)=> {
+                    var wechatUserInfo = _msg1[0];
+                    base.autoSendTemplate({
+                      touser: wechatUserInfo.openid,
+                      page: 'pages/YoCoupons/index',
+                      form_id: wechatUserInfo.form_id,
+                      data: {
+                        keyword1: {
+                          value: order_list[i-1].item_title,
+                        },
+                        keyword2: {
+                          value: order_list[i-1].trade_id
+                        },
+                        keyword3: {
+                          value: order_list[i-1].create_time,
+                        },
+                        keyword4: {
+                          value: order_list[i-1].alipay_total_price
+                        },
+                        keyword5: {
+                          value: '添加客服微信（XiaoHuanYouQuan）,确认收货后还可以获得返现哦~'
+                        }
+                      }
+                    })
+                  })
+                }
                 if (_msg.result.nModified == 1) {
                   var adzone_id = order_list[i-1].adzone_id;
                   var pub_share_pre_fee = order_list[i-1].pub_share_pre_fee;
