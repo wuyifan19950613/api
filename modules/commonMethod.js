@@ -112,10 +112,12 @@ var MyMethod = {
             for (var i = 0; i < order_list.length; i++) {
               mongodb.updateMany('order_details', {trade_id:order_list[i].trade_id}, order_list[i],(err, _msg)=>{
                 if (order_list[i-1].tk_status == 12) {
-                  console.log(order_list[i-1])
                   var adzone_id = order_list[i-1].adzone_id;
                   mongodb.find('weChatUsers',{"pid":adzone_id}, (err1,_msg1)=> {
                     var wechatUserInfo = _msg1[0];
+                    if (JSON.stringify(_msg1) == '[]') {
+                      return false;
+                    }
                     base.autoSendTemplate({
                       touser: wechatUserInfo.openid,
                       page: 'pages/YoCoupons/index',
