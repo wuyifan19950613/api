@@ -113,6 +113,7 @@ var MyMethod = {
               mongodb.updateMany('order_details', {trade_id:order_list[i].trade_id}, order_list[i],(err, _msg)=>{
                 if (order_list[i-1].tk_status == 12) {
                   var adzone_id = order_list[i-1].adzone_id;
+                  var pub_share_pre_fee = order_list[i-1].pub_share_pre_fee;
                   mongodb.find('weChatUsers',{"pid":adzone_id}, (err1,_msg1)=> {
                     var wechatUserInfo = _msg1[0];
                     if (JSON.stringify(_msg1) == '[]') {
@@ -120,7 +121,7 @@ var MyMethod = {
                     }
                     base.autoSendTemplate({
                       touser: wechatUserInfo.openid,
-                      page: 'pages/YoCoupons/index',
+                      // page: 'pages/YoCoupons/index',
                       form_id: wechatUserInfo.form_id,
                       data: {
                         keyword1: {
@@ -133,12 +134,13 @@ var MyMethod = {
                           value: order_list[i-1].create_time,
                         },
                         keyword4: {
-                          value: order_list[i-1].alipay_total_price
+                          value: (parseFloat(order_list[i-1].alipay_total_price)).toFixed(2)
                         },
                         keyword5: {
-                          value: '添加客服微信（XiaoHuanYouQuan）,确认收货后还可以获得返现哦~'
+                          value: '客服微信(XiaoHuanYouQuan),确认收货后还可以获得'+((pub_share_pre_fee * 0.7).toFixed(2))+'返现哦~'
                         }
-                      }
+                      },
+                      emphasis_keyword: 'keyword1.DATA',
                     })
                   })
                 }

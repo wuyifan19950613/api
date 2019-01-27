@@ -87,12 +87,22 @@ module.exports = function(app) {
      res.on("end", function () {
         var buff = Buffer.concat(datas, size);
         var result = iconv.decode(buff, "utf8");
-        mongodb.updateMany('weChatUsers', {openid: JSON.parse(result).openid}, {openid: JSON.parse(result).openid}, (err, msg)=> {
-          if (err) {
-            return err;
+        mongodb.find('weChatUsers', {openid: JSON.parse(result).openid}, (err, res)=> {
+          if (res.length > 0) {
+            that.send({data:JSON.parse(result)});
+          } else {
+            mongodb.find('pid', {status: false}, (err, msg)=> {
+              mongodb.update('pid',{"pid": msg[0].pid},{'status': true}, (err, msg2)=> {
+                mongodb.updateMany('weChatUsers', {openid: JSON.parse(result).openid}, {openid: JSON.parse(result).openid, pid: msg[0].pid,}, (err, msg)=> {
+                  if (err) {
+                    return err;
+                  }
+                  that.send({data:JSON.parse(result)});
+                });
+              })
+            });
           }
-          that.send({data:JSON.parse(result)});
-        });
+        })
       });
     })
   });
