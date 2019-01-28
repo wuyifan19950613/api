@@ -535,7 +535,7 @@ app.get('/api/taobao/pwdCreate', (req, res)=> {
 app.get('/api/taobao/optimusMaterial', (req, res)=> {
   client.execute('taobao.tbk.dg.optimus.material', {
   	'page_size': `${req.query.pageSize}`,
-  	'adzone_id':'57801250099',
+  	'adzone_id': `${req.query.pid || '57801250099'}`,
   	'page_no': `${req.query.pageNum}`,
   	'material_id': `${req.query.material_id}`,
   }, function(err, msg) {
@@ -550,7 +550,7 @@ app.get('/api/taobao/materialOptional', (req, res)=> {
   client.execute('taobao.tbk.dg.material.optional', {
     'page_size': `${req.query.pageSize}`,
     'page_no': `${req.query.pageNum}`,
-    'adzone_id':'57801250099',
+  	'adzone_id': `${req.query.pid || '57801250099'}`,
     'platform': '2',
     'sort': '_des,tk_rate',
     'q': `${req.query.searchName}`,

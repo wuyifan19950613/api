@@ -89,7 +89,9 @@ module.exports = function(app) {
         var result = iconv.decode(buff, "utf8");
         mongodb.find('weChatUsers', {openid: JSON.parse(result).openid}, (err, res)=> {
           if (res.length > 0) {
-            that.send({data:JSON.parse(result)});
+            var wxUserInfo = JSON.parse(result);
+            wxUserInfo.pid = res[0].pid;
+            that.send({data: wxUserInfo});
           } else {
             mongodb.find('pid', {status: false}, (err, msg)=> {
               mongodb.update('pid',{"pid": msg[0].pid},{'status': true}, (err, msg2)=> {
@@ -97,6 +99,7 @@ module.exports = function(app) {
                   if (err) {
                     return err;
                   }
+                  var wxUserInfo = JSON.parse(result);
                   that.send({data:JSON.parse(result)});
                 });
               })
