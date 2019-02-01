@@ -101,7 +101,7 @@ var MyMethod = {
         "page_size":100,
         "tk_status":1,
         "order_query_type": order_query_type,
-        "session":"700001003414d0f3981bbb095e98d983e61dbff086afb6e9be10f1cbe2eaef3de83e9951746586102"
+        "session":"70000100410d0f18a9eab01e048d94e9999e82efc0e1f288490c1e2d5aeead2deec98711746586102"
       }
     }, function(error, response, body) {
       console.log(body);
