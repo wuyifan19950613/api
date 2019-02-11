@@ -21,7 +21,6 @@ var MyMethod = {
   },
   // 获取商品id
   dismantlID: async (url, cb)=> {
-    console.log(url);
     let item_id = '';
     await https.get(url, (res)=> {
       var datas = [];
@@ -33,7 +32,6 @@ var MyMethod = {
      res.on("end", function () {
        var buff = Buffer.concat(datas, size);
        var result = iconv.decode(buff, "utf8");//转码//var result = buff.toString();//不需要转编码,直接tostring
-       console.log(result)
        var id;
        if (result.indexOf("https://a.m.taobao.com/i") != -1) {
          id = result.substring(result.indexOf("https://a.m.taobao.com/i")+1,result.indexOf('.htm?')).replace(/[^0-9]/ig,"");
@@ -108,46 +106,14 @@ var MyMethod = {
       if (!error && response.statusCode == 200) {
         if (body.tbk_sc_order_get_response) {
           var order_list = body.tbk_sc_order_get_response.results.n_tbk_order;
+          console.log(order_list)
           if(order_list){
             for (var i = 0; i < order_list.length; i++) {
               mongodb.updateMany('order_details', {trade_id:order_list[i].trade_id}, order_list[i],(err, _msg)=>{
-                if (order_list[i-1].tk_status == 12) {
-                  var adzone_id = order_list[i-1].adzone_id;
-                  var pub_share_pre_fee = order_list[i-1].pub_share_pre_fee;
-                  mongodb.find('weChatUsers',{"pid":adzone_id}, (err1,_msg1)=> {
-                    var wechatUserInfo = _msg1[0];
-                    if (JSON.stringify(_msg1) == '[]') {
-                      return false;
-                    }
-                    base.autoSendTemplate({
-                      touser: wechatUserInfo.openid,
-                      // page: 'pages/YoCoupons/index',
-                      form_id: wechatUserInfo.form_id,
-                      data: {
-                        keyword1: {
-                          value: order_list[i-1].item_title,
-                        },
-                        keyword2: {
-                          value: order_list[i-1].trade_id
-                        },
-                        keyword3: {
-                          value: order_list[i-1].create_time,
-                        },
-                        keyword4: {
-                          value: (parseFloat(order_list[i-1].alipay_total_price)).toFixed(2)
-                        },
-                        keyword5: {
-                          value: '客服微信(XiaoHuanYouQuan),确认收货后还可以获得'+((pub_share_pre_fee * 0.7).toFixed(2))+'返现哦~'
-                        }
-                      },
-                      emphasis_keyword: 'keyword1.DATA',
-                    })
-                  })
-                }
                 if (_msg.result.nModified == 1) {
-                  var adzone_id = order_list[i-1].adzone_id;
-                  var pub_share_pre_fee = order_list[i-1].pub_share_pre_fee;
-                  if (order_list[i-1].tk_status === 3) {
+                  var adzone_id = msg1.adzone_id;
+                  var pub_share_pre_fee = msg1.pub_share_pre_fee;
+                  if (msg1.tk_status === 3) {
                     mongodb.find('userList',{"pid":adzone_id}, (err1,_msg1)=> {
                       var amount = _msg1[0].estimated_revenue_the_month;
                       amount = (Number(amount) + Number(pub_share_pre_fee)).toFixed(2);
@@ -157,6 +123,53 @@ var MyMethod = {
                   }
                 }
               });
+              mongodb.find('order_details', {trade_id:order_list[i].trade_id}, (err, msg1)=> {
+                console.log(msg1[0])
+                if (msg1[0].tk_status == 12) {
+                  var adzone_id = msg1[0].adzone_id;
+                  console.log(adzone_id)
+                  var pub_share_pre_fee = msg1[0].pub_share_pre_fee;
+                  mongodb.find('weChatUsers',{"pid":adzone_id}, (err1,_msg1)=> {
+                    var wechatUserInfo = _msg1[0];
+                    if (JSON.stringify(_msg1) == '[]') {
+                      return false;
+                    }
+                    console.log('1231')
+                    base.autoSendTemplate({
+                      touser: wechatUserInfo.openid,
+                      // page: 'pages/YoCoupons/index',
+                      form_id: wechatUserInfo.form_id,
+                      data: {
+                        keyword1: {
+                          value: msg1[0].item_title,
+                        },
+                        keyword2: {
+                          value: msg1[0].trade_id
+                        },
+                        keyword3: {
+                          value: msg1[0].create_time,
+                        },
+                        keyword4: {
+                          value: (parseFloat(msg1[0].alipay_total_price)).toFixed(2)
+                        },
+                        keyword5: {
+                          value: '客服微信(XiaoHuanYouQuan),确认收货后还可以获得'+((pub_share_pre_fee * 0.7).toFixed(2))+'返现哦~'
+                        }
+                      },
+                      emphasis_keyword: 'keyword1.DATA',
+                    })
+                  })
+                }
+              })
+
+
+
+
+
+
+
+
+
             }
           }
         }
