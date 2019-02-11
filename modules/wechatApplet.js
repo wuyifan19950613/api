@@ -99,8 +99,9 @@ module.exports = function(app) {
                   if (err) {
                     return err;
                   }
-                  var wxUserInfo = JSON.parse(result);
-                  that.send({data:JSON.parse(result)});
+                  mongodb.find('weChatUsers', {openid: JSON.parse(result).openid}, (err, msg3)=> {
+                    that.send({data: msg3[0]});
+                  });
                 });
               })
             });
