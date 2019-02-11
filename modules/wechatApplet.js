@@ -192,6 +192,6 @@ module.exports = function(app) {
   });
 
   app.get('/api/applet/examine', (req, res)=> {
-    res.send({data: false})
+    res.send({data: true})
   })
 }
