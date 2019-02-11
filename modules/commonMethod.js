@@ -106,7 +106,6 @@ var MyMethod = {
       if (!error && response.statusCode == 200) {
         if (body.tbk_sc_order_get_response) {
           var order_list = body.tbk_sc_order_get_response.results.n_tbk_order;
-          console.log(order_list)
           if(order_list){
             for (var i = 0; i < order_list.length; i++) {
               mongodb.updateMany('order_details', {trade_id:order_list[i].trade_id}, order_list[i],(err, _msg)=>{
@@ -124,10 +123,8 @@ var MyMethod = {
                 }
               });
               mongodb.find('order_details', {trade_id:order_list[i].trade_id}, (err, msg1)=> {
-                console.log(msg1[0])
                 if (msg1[0].tk_status == 12) {
                   var adzone_id = msg1[0].adzone_id;
-                  console.log(adzone_id)
                   var pub_share_pre_fee = msg1[0].pub_share_pre_fee;
                   mongodb.find('weChatUsers',{"pid":adzone_id}, (err1,_msg1)=> {
                     var wechatUserInfo = _msg1[0];
@@ -161,15 +158,6 @@ var MyMethod = {
                   })
                 }
               })
-
-
-
-
-
-
-
-
-
             }
           }
         }
