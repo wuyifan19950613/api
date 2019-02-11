@@ -270,7 +270,7 @@ module.exports = function(app) {
   // 获取订单信息
   // create_time 创建时间 settle_time 结算时间
   // MyMethod.get_order_details('2019-01-07 12:15:35', 'settle_time');
-  // MyMethod.get_order_details('2019-01-25 13:26:08', 'create_time');
+  // MyMethod.get_order_details('2019-01-29 21:04:35', 'create_time');
   var t = null ;
   var num = 0;
   t = setInterval(function(){
