@@ -127,7 +127,6 @@ var MyMethod = {
                     if (JSON.stringify(_msg1) == '[]') {
                       return false;
                     }
-                    console.log('1231')
                     base.autoSendTemplate({
                       touser: wechatUserInfo.openid,
                       // page: 'pages/YoCoupons/index',
