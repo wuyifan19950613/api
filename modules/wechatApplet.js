@@ -190,7 +190,30 @@ module.exports = function(app) {
       });
     });
   });
-
+  // 小程序banner图
+  app.post('/api/applet/addbanner', (req, res)=> {
+    var that = res;
+    let body = "";
+    req.on('data', (chunk) => {
+      body += chunk;
+    });
+    req.on('end', () => {
+      body = JSON.parse(body);
+      mongodb.insertOne('appletbanner', {imgUrl: body.imgUrl, imgHref: body.imgHref,imgMark: body.imgMark}, (err, msg)=> {
+        if (err) {
+          return err;
+        }
+        res.send({});
+      });
+    });
+  });
+  app.get('/api/applet/banner', (req, res)=> {
+    var that = res;
+    mongodb.find('appletbanner', {}, (err, res)=> {
+      that.send({data: res})
+    })
+  })
+  // 拼多多切换
   app.get('/api/applet/examine', (req, res)=> {
     res.send({data: true})
   })
