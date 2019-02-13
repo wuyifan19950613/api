@@ -127,29 +127,32 @@ var MyMethod = {
                     if (JSON.stringify(_msg1) == '[]') {
                       return false;
                     }
-                    base.autoSendTemplate({
-                      touser: wechatUserInfo.openid,
-                      // page: 'pages/YoCoupons/index',
-                      form_id: wechatUserInfo.form_id,
-                      data: {
-                        keyword1: {
-                          value: msg1[0].item_title,
+                    if (wechatUserInfo.form_id !== '') {
+                      base.autoSendTemplate({
+                        touser: wechatUserInfo.openid,
+                        // page: 'pages/YoCoupons/index',
+                        form_id: wechatUserInfo.form_id,
+                        data: {
+                          keyword1: {
+                            value: msg1[0].item_title,
+                          },
+                          keyword2: {
+                            value: msg1[0].trade_id
+                          },
+                          keyword3: {
+                            value: msg1[0].create_time,
+                          },
+                          keyword4: {
+                            value: (parseFloat(msg1[0].alipay_total_price)).toFixed(2)
+                          },
+                          keyword5: {
+                            value: '客服微信(XiaoHuanYouQuan),确认收货后还可以获得'+((pub_share_pre_fee * 0.7).toFixed(2))+'返现哦~'
+                          }
                         },
-                        keyword2: {
-                          value: msg1[0].trade_id
-                        },
-                        keyword3: {
-                          value: msg1[0].create_time,
-                        },
-                        keyword4: {
-                          value: (parseFloat(msg1[0].alipay_total_price)).toFixed(2)
-                        },
-                        keyword5: {
-                          value: '客服微信(XiaoHuanYouQuan),确认收货后还可以获得'+((pub_share_pre_fee * 0.7).toFixed(2))+'返现哦~'
-                        }
-                      },
-                      emphasis_keyword: 'keyword1.DATA',
-                    })
+                        emphasis_keyword: 'keyword1.DATA',
+                      })
+                      mongodb.updateMany('weChatUsers', {"pid": adzone_id } , {"form_id": ""}, (err, res)=> {});
+                    }
                   })
                 }
               })
