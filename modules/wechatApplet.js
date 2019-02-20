@@ -215,6 +215,6 @@ module.exports = function(app) {
   })
   // 拼多多切换
   app.get('/api/applet/examine', (req, res)=> {
-    res.send({data: true})
+    res.send({data: false})
   })
 }
