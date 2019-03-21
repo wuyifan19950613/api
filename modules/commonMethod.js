@@ -113,7 +113,7 @@ var MyMethod = {
               mongodb.find('order_details', {trade_id:order_list[i].trade_id}, (err, msg1)=> {
                 var adzone_id = msg1[0].adzone_id;
                 var pub_share_pre_fee = msg1[0].pub_share_pre_fee;
-                if (msg1.tk_status === 3) {
+                if (msg1[0].tk_status === 3) {
                   mongodb.find('userList',{"pid":adzone_id}, (err1,_msg1)=> {
                     var amount = _msg1[0].estimated_revenue_the_month;
                     amount = (Number(amount) + Number(pub_share_pre_fee)).toFixed(2);

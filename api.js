@@ -577,10 +577,6 @@ app.get('/api/taobao/recommend', (req, res)=> {
   })
 })
 
-
-
-
-
 // 根据id查询商品
 app.get('/api/find/CommodityId', (req, res)=> {
   mongodb.find('commodity',{"_id": ObjectId(req.query.id)}, (err, msg) => {
