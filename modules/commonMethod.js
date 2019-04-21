@@ -99,7 +99,7 @@ var MyMethod = {
         "page_size":100,
         "tk_status":1,
         "order_query_type": order_query_type,
-        "session":"70000100f437190587bdcf686c88079dc5c105840bad348c8d14d1f15dd06f24efd98b31746586102"
+        "session":"70000101713758f944bc5cb9a1b05d552e894aa54717fcc5bf4508e04438638e9d1af4d1746586102"
       }
     }, function(error, response, body) {
       console.log(body);
