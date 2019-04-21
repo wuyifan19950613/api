@@ -284,5 +284,5 @@ module.exports = function(app) {
     } else {
       MyMethod.get_order_details('', 'settle_time');
     }
-  }, 10000);
+  }, 20000);
 }
