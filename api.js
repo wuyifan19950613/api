@@ -177,6 +177,18 @@ app.post('/api/weixin', (req, res) => {
           recProcess(Wxcofig, resData, site_name);
           return false;
         }
+        if (text == 1) {
+          var html ='';
+      //      duanUrl = JSON.parse(body)[0].url_short;
+           html +='<xml>';
+           html +='<ToUserName>'+Wxcofig.FromUserName+'</ToUserName>';
+           html +='<FromUserName>'+Wxcofig.ToUserName+'</FromUserName>';
+           html +='<CreateTime>'+Wxcofig.CreateTime+'</CreateTime>';
+           html +='<MsgType>'+Wxcofig.MsgType+'</MsgType> ';
+           html +=`<Content>【618超级红包】最高618元\r\n复制本条信息￥SwllYWpSmq9￥\r\n打开【手机淘.宝】即可领取618超级红包！\r\n时间：【5.29日-6.17日】\r\n每天抢三次～中奖率最高，最高618元～</Content>`;
+           html +='</xml>';
+           return resData.send(html);
+        }
         // 如果带有链接
         if(text.indexOf('https') != -1){
           // 如果连接带有id就直接获取id
