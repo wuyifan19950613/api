@@ -28,6 +28,7 @@
     "sha1": "^1.1.1",
     "superagent": "^4.0.0-beta.5",
     "urlencode": "^1.1.0",
+    "uuid": "^3.3.2",
     "ws": "^0.4.32",
     "xmlreader": "^0.2.3"
   },

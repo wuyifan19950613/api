@@ -495,6 +495,29 @@ app.get('/api/taobao/CommodityFind', (req, res)=> {
   })
 });
 
+app.get('/api/taobao/orderInfoSearch', (req, res)=> {
+  client.execute('taobao.tbk.sc.order.get', {
+    'fields':'tb_trade_parent_id,tb_trade_id,num_iid,item_title,item_num,price,pay_price,seller_nick,seller_shop_title,commission,commission_rate,unid,create_time,earning_time,tk3rd_pub_id,tk3rd_site_id,tk3rd_adzone_id,relation_id,tb_trade_parent_id,tb_trade_id,num_iid,item_title,item_num,price,pay_price,seller_nick,seller_shop_title,commission,commission_rate,unid,create_time,earning_time,tk3rd_pub_id,tk3rd_site_id,tk3rd_adzone_id,special_id,click_time',
+    'start_time':'2016-05-23 12:18:22',
+    'span':'600',
+    'page_no':'1',
+    'page_size':'20',
+    'tk_status':'1',
+    'order_query_type':'settle_time',
+    'order_scene':'1',
+    'order_count_type':'1',
+    'session': '6102124c9c51551ec1181a7cee33798813912913ae09cf61746586102'
+  }, (err, msg)=> {
+    if (err){
+      return res.send({code:201, err: err});
+    } else {
+      return res.send({code:200, msg: msg});
+    }
+  })
+});
+
+
+
 // 淘宝商品详情（简版）
 app.get('/api/taobao/CommodityDetails', (req, res) => {
   client.execute('taobao.tbk.item.info.get', {
