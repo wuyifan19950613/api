@@ -177,9 +177,8 @@ app.post('/api/weixin', (req, res) => {
           recProcess(Wxcofig, resData, site_name);
           return false;
         }
-        console.log(text)
         MyMethod.pwdJx(text, (result)=> {
-          console.log(result);
+          var result = JSON.parse(result);
           if (result.code == 200) {
             wechatOutReply(result.data,Wxcofig ,resData, Rebate, pid);
           } else {
