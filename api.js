@@ -177,53 +177,51 @@ app.post('/api/weixin', (req, res) => {
           recProcess(Wxcofig, resData, site_name);
           return false;
         }
-        MyMethod.pwdJx(text, (result)=> {
-          var result = JSON.parse(result);
-          if (result.code == 200) {
-            wechatOutReply(result.data,Wxcofig ,resData, Rebate, pid);
-          } else {
-            var html ='';
-                html +='<xml>';
-                html +='<ToUserName>'+Wxcofig.FromUserName+'</ToUserName>';
-                html +='<FromUserName>'+Wxcofig.ToUserName+'</FromUserName>';
-                html +='<CreateTime>'+Wxcofig.CreateTime+'</CreateTime>';
-                html +='<MsgType>'+Wxcofig.MsgType+'</MsgType> ';
-                html +=`<Content>兄dei，请直接分享宝贝链接搜索哦~\r\n不是标题哦！</Content>`;
-                html +='</xml>';
-                return resData.send(html);
-          }
-        })
+
         // 如果带有链接
-        // if(text.indexOf('https') != -1){
-        //   // 如果连接带有id就直接获取id
-        //   if(text.indexOf('?id') != -1){
-        //     const id = base.getUrlParam(text);
-        //     wechatOutReply(id, Wxcofig, resData, Rebate, pid);
-        //     return false;
-        //   }
-        //   var url = text.substring(text.indexOf('https:'), text.indexOf('点击链接'));
-        //   MyMethod.dismantlID(url,(id)=> {
-        //     wechatOutReply(id,Wxcofig ,resData, Rebate, pid);
-        //   })
-        // } else{
-        //   // var short_links = 'http://www.xiaohuanzi.cn/search?searchName='+text;
-        //   // var trans_url = 'http://api.t.sina.com.cn/short_url/shorten.json?source=2815391962&url_long='+url_encode(short_links);
-        //   // var duanUrl = '';
-        //   // request(trans_url, (err, res, body)=> {
-        //   //   if (!err && res.statusCode == 200) {
-        //       var html ='';
-        //   //      duanUrl = JSON.parse(body)[0].url_short;
-        //        html +='<xml>';
-        //        html +='<ToUserName>'+Wxcofig.FromUserName+'</ToUserName>';
-        //        html +='<FromUserName>'+Wxcofig.ToUserName+'</FromUserName>';
-        //        html +='<CreateTime>'+Wxcofig.CreateTime+'</CreateTime>';
-        //        html +='<MsgType>'+Wxcofig.MsgType+'</MsgType> ';
-        //        html +=`<Content>兄dei，请直接分享宝贝链接搜索哦~\r\n不是标题哦！</Content>`;
-        //        html +='</xml>';
-        //        return resData.send(html);
-        //    //   }
-        //    // });
-        // }
+        if(text.indexOf('https') != -1){
+          // 如果连接带有id就直接获取id
+          if(text.indexOf('?id') != -1){
+            const id = base.getUrlParam(text);
+            wechatOutReply(id, Wxcofig, resData, Rebate, pid);
+            return false;
+          }
+        } else if (text.indexOf('这段描述') != -1) {
+          MyMethod.pwdJx(text, (result)=> {
+            var result = JSON.parse(result);
+            if (result.code == 200) {
+              wechatOutReply(result.data,Wxcofig ,resData, Rebate, pid);
+            } else {
+              var html ='';
+                  html +='<xml>';
+                  html +='<ToUserName>'+Wxcofig.FromUserName+'</ToUserName>';
+                  html +='<FromUserName>'+Wxcofig.ToUserName+'</FromUserName>';
+                  html +='<CreateTime>'+Wxcofig.CreateTime+'</CreateTime>';
+                  html +='<MsgType>'+Wxcofig.MsgType+'</MsgType> ';
+                  html +=`<Content>兄dei，请直接分享宝贝链接搜索哦~\r\n不是标题哦！</Content>`;
+                  html +='</xml>';
+                  return resData.send(html);
+            }
+          })
+        } else{
+          // var short_links = 'http://www.xiaohuanzi.cn/search?searchName='+text;
+          // var trans_url = 'http://api.t.sina.com.cn/short_url/shorten.json?source=2815391962&url_long='+url_encode(short_links);
+          // var duanUrl = '';
+          // request(trans_url, (err, res, body)=> {
+          //   if (!err && res.statusCode == 200) {
+              var html ='';
+          //      duanUrl = JSON.parse(body)[0].url_short;
+               html +='<xml>';
+               html +='<ToUserName>'+Wxcofig.FromUserName+'</ToUserName>';
+               html +='<FromUserName>'+Wxcofig.ToUserName+'</FromUserName>';
+               html +='<CreateTime>'+Wxcofig.CreateTime+'</CreateTime>';
+               html +='<MsgType>'+Wxcofig.MsgType+'</MsgType> ';
+               html +=`<Content>兄dei，请直接分享宝贝链接搜索哦~\r\n不是标题哦！</Content>`;
+               html +='</xml>';
+               return resData.send(html);
+           //   }
+           // });
+        }
        }
       });
     });
