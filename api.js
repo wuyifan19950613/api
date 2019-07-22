@@ -177,6 +177,7 @@ app.post('/api/weixin', (req, res) => {
           recProcess(Wxcofig, resData, site_name);
           return false;
         }
+        console.log(text)
         MyMethod.pwdJx(text, (result)=> {
           console.log(result);
           if (result.code == 200) {
