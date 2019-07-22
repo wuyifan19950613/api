@@ -93,17 +93,13 @@ module.exports = function(app) {
             wxUserInfo.pid = res[0].pid;
             that.send({data: wxUserInfo});
           } else {
-            mongodb.find('pid', {status: false}, (err, msg)=> {
-              mongodb.update('pid',{"pid": msg[0].pid},{'status': true}, (err, msg2)=> {
-                mongodb.updateMany('weChatUsers', {openid: JSON.parse(result).openid}, {openid: JSON.parse(result).openid, pid: msg[0].pid,}, (err, msg)=> {
-                  if (err) {
-                    return err;
-                  }
-                  mongodb.find('weChatUsers', {openid: JSON.parse(result).openid}, (err, msg3)=> {
-                    that.send({data: msg3[0]});
-                  });
-                });
-              })
+            mongodb.updateMany('weChatUsers', {openid: JSON.parse(result).openid}, {openid: JSON.parse(result).openid, pid: '91252550279',}, (err, msg)=> {
+              if (err) {
+                return err;
+              }
+              mongodb.find('weChatUsers', {openid: JSON.parse(result).openid}, (err, msg3)=> {
+                that.send({data: msg3[0]});
+              });
             });
           }
         })
