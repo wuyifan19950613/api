@@ -127,6 +127,13 @@ app.get('/api/smallProgram', (req, res)=> {
         return res.send({code: 200,message:{id: id},});
       })
     }
+  } else if (text.indexOf('这段描述') != -1) {
+    MyMethod.pwdJx(text, (result)=> {
+      var result = JSON.parse(result);
+      if (result.code == 200) {
+        return res.send({code: 200,message:{id: result.data},});
+      } 
+    })
   } else {
     return res.send({code :201, message:'未发现商品'})
   }
