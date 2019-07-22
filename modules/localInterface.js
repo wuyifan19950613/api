@@ -267,9 +267,10 @@ module.exports = function(app) {
       return res.send({});
     })
   });
+  MyMethod.pwdJx();
   // 获取订单信息
   // create_time 创建时间 settle_time 结算时间
-  MyMethod.get_order_details('2019-01-07 12:15:35', 'settle_time');
+  // MyMethod.get_order_details('2019-01-07 12:15:35', 'settle_time');
   // MyMethod.get_order_details('2019-02-11 17:00:52', 'create_time');
   // var t = null ;
   // var num = 0;

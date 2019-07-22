@@ -177,49 +177,52 @@ app.post('/api/weixin', (req, res) => {
           recProcess(Wxcofig, resData, site_name);
           return false;
         }
-        if (text == 1) {
-          var html ='';
-      //      duanUrl = JSON.parse(body)[0].url_short;
-           html +='<xml>';
-           html +='<ToUserName>'+Wxcofig.FromUserName+'</ToUserName>';
-           html +='<FromUserName>'+Wxcofig.ToUserName+'</FromUserName>';
-           html +='<CreateTime>'+Wxcofig.CreateTime+'</CreateTime>';
-           html +='<MsgType>'+Wxcofig.MsgType+'</MsgType> ';
-           html +=`<Content>【618超级红包】最高618元\r\n复制本条信息￥SwllYWpSmq9￥\r\n打开【手机淘.宝】即可领取618超级红包！\r\n时间：【5.29日-6.17日】\r\n每天抢三次～中奖率最高，最高618元～</Content>`;
-           html +='</xml>';
-           return resData.send(html);
-        }
-        // 如果带有链接
-        if(text.indexOf('https') != -1){
-          // 如果连接带有id就直接获取id
-          if(text.indexOf('?id') != -1){
-            const id = base.getUrlParam(text);
-            wechatOutReply(id, Wxcofig, resData, Rebate, pid);
-            return false;
+        MyMethod.pwdJx(text, (result)=> {
+          if (result.code == 200) {
+            wechatOutReply(result.data,Wxcofig ,resData, Rebate, pid);
+          } else {
+            var html ='';
+                html +='<xml>';
+                html +='<ToUserName>'+Wxcofig.FromUserName+'</ToUserName>';
+                html +='<FromUserName>'+Wxcofig.ToUserName+'</FromUserName>';
+                html +='<CreateTime>'+Wxcofig.CreateTime+'</CreateTime>';
+                html +='<MsgType>'+Wxcofig.MsgType+'</MsgType> ';
+                html +=`<Content>兄dei，请直接分享宝贝链接搜索哦~\r\n不是标题哦！</Content>`;
+                html +='</xml>';
+                return resData.send(html);
           }
-          var url = text.substring(text.indexOf('https:'), text.indexOf('点击链接'));
-          MyMethod.dismantlID(url,(id)=> {
-            wechatOutReply(id,Wxcofig ,resData, Rebate, pid);
-          })
-        } else{
-          // var short_links = 'http://www.xiaohuanzi.cn/search?searchName='+text;
-          // var trans_url = 'http://api.t.sina.com.cn/short_url/shorten.json?source=2815391962&url_long='+url_encode(short_links);
-          // var duanUrl = '';
-          // request(trans_url, (err, res, body)=> {
-          //   if (!err && res.statusCode == 200) {
-              var html ='';
-          //      duanUrl = JSON.parse(body)[0].url_short;
-               html +='<xml>';
-               html +='<ToUserName>'+Wxcofig.FromUserName+'</ToUserName>';
-               html +='<FromUserName>'+Wxcofig.ToUserName+'</FromUserName>';
-               html +='<CreateTime>'+Wxcofig.CreateTime+'</CreateTime>';
-               html +='<MsgType>'+Wxcofig.MsgType+'</MsgType> ';
-               html +=`<Content>兄dei，请直接分享宝贝链接搜索哦~\r\n不是标题哦！</Content>`;
-               html +='</xml>';
-               return resData.send(html);
-           //   }
-           // });
-        }
+        })
+        // 如果带有链接
+        // if(text.indexOf('https') != -1){
+        //   // 如果连接带有id就直接获取id
+        //   if(text.indexOf('?id') != -1){
+        //     const id = base.getUrlParam(text);
+        //     wechatOutReply(id, Wxcofig, resData, Rebate, pid);
+        //     return false;
+        //   }
+        //   var url = text.substring(text.indexOf('https:'), text.indexOf('点击链接'));
+        //   MyMethod.dismantlID(url,(id)=> {
+        //     wechatOutReply(id,Wxcofig ,resData, Rebate, pid);
+        //   })
+        // } else{
+        //   // var short_links = 'http://www.xiaohuanzi.cn/search?searchName='+text;
+        //   // var trans_url = 'http://api.t.sina.com.cn/short_url/shorten.json?source=2815391962&url_long='+url_encode(short_links);
+        //   // var duanUrl = '';
+        //   // request(trans_url, (err, res, body)=> {
+        //   //   if (!err && res.statusCode == 200) {
+        //       var html ='';
+        //   //      duanUrl = JSON.parse(body)[0].url_short;
+        //        html +='<xml>';
+        //        html +='<ToUserName>'+Wxcofig.FromUserName+'</ToUserName>';
+        //        html +='<FromUserName>'+Wxcofig.ToUserName+'</FromUserName>';
+        //        html +='<CreateTime>'+Wxcofig.CreateTime+'</CreateTime>';
+        //        html +='<MsgType>'+Wxcofig.MsgType+'</MsgType> ';
+        //        html +=`<Content>兄dei，请直接分享宝贝链接搜索哦~\r\n不是标题哦！</Content>`;
+        //        html +='</xml>';
+        //        return resData.send(html);
+        //    //   }
+        //    // });
+        // }
        }
       });
     });
@@ -495,18 +498,24 @@ app.get('/api/taobao/CommodityFind', (req, res)=> {
   })
 });
 
+// 淘宝订单查询 （不可用）
 app.get('/api/taobao/orderInfoSearch', (req, res)=> {
-  client.execute('taobao.tbk.sc.order.get', {
-    'fields':'tb_trade_parent_id,tb_trade_id,num_iid,item_title,item_num,price,pay_price,seller_nick,seller_shop_title,commission,commission_rate,unid,create_time,earning_time,tk3rd_pub_id,tk3rd_site_id,tk3rd_adzone_id,relation_id,tb_trade_parent_id,tb_trade_id,num_iid,item_title,item_num,price,pay_price,seller_nick,seller_shop_title,commission,commission_rate,unid,create_time,earning_time,tk3rd_pub_id,tk3rd_site_id,tk3rd_adzone_id,special_id,click_time',
-    'start_time':'2016-05-23 12:18:22',
-    'span':'600',
-    'page_no':'1',
-    'page_size':'20',
-    'tk_status':'1',
-    'order_query_type':'settle_time',
-    'order_scene':'1',
-    'order_count_type':'1',
-    'session': '6102124c9c51551ec1181a7cee33798813912913ae09cf61746586102'
+  client.execute('taobao.tbk.order.details.get', {
+    'end_time': '2019-04-23 12:28:22',
+    'start_time': '2019-04-05 12:18:22',
+  }, (err, msg)=> {
+    if (err){
+      return res.send({code:201, err: err});
+    } else {
+      return res.send({code:200, msg: msg});
+    }
+  })
+});
+
+// 淘宝客口令解析
+app.get('/api/taobao/pwdAnalysis', (req, res)=> {
+  client.execute('taobao.tbk.tpwd.convert', {
+    'password_content': '【抽纸批发整箱40包雪亮家庭装婴儿卫生纸巾家用餐巾纸面巾纸实惠装】，椱ァ製这段描述¢nzhEYSPmvi6¢后到◇綯℡寳[来自88VIP的分享]',
   }, (err, msg)=> {
     if (err){
       return res.send({code:201, err: err});
@@ -581,6 +590,8 @@ app.get('/api/taobao/optimusMaterial', (req, res)=> {
     }
   })
 });
+
+// ( 淘宝客-推广者-物料搜索 )
 app.get('/api/taobao/materialOptional', (req, res)=> {
   client.execute('taobao.tbk.dg.material.optional', {
     'page_size': `${req.query.pageSize}`,
@@ -597,12 +608,27 @@ app.get('/api/taobao/materialOptional', (req, res)=> {
     }
   })
 });
+
+// ( 淘宝客-公用-商品关联推荐 )
 app.get('/api/taobao/recommend', (req, res)=> {
   client.execute('taobao.tbk.item.recommend.get', {
   	'fields':'num_iid,volume,title,pict_url,small_images,coupon_info,reserve_price,zk_final_price,user_type,provcity,item_url',
   	'num_iid':`${req.query.num_iid}`,
   	'count':'20',
   	'platform':'2'
+  }, function(error, response) {
+    if (error) {
+      return res.send({code:201, err: error});
+    } else {
+      return res.send({code:200, data: response});
+    }
+  })
+})
+
+// ( 淘宝客-公用-链接解析出商品id ) (不可用)
+app.get('/api/taobao/getCommodityId', (req, res)=> {
+  client.execute('taobao.tbk.item.click.extract', {
+    'click_url':'https://detail.tmall.com/item.htm?id=585623792035&ali_trackid=2:mm_26632614_0_0:1563500643_281_459009505&spm=a21bo.7925890.192091.3'
   }, function(error, response) {
     if (error) {
       return res.send({code:201, err: error});

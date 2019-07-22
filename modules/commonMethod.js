@@ -81,6 +81,23 @@ var MyMethod = {
             + seperator2 + Second;
     return currentdate;
   },
+  pwdJx: (content, cb)=> {
+   https.get('https://api.open.21ds.cn/apiv1/tpwdtoid?apkey=112fc905-6a56-c1b7-737d-8a890f2db1e1&&tpwd='+encodeURIComponent(content), (res)=> {
+      var datas = [];
+      var size = 0;
+      res.on('data', function (data) {
+       datas.push(data);
+       size += data.length;
+     });
+     res.on("end", function () {
+       var buff = Buffer.concat(datas, size);
+       var result = iconv.decode(buff, "utf8");//转码//var result = buff.toString();//不需要转编码,直接tostring
+       if(cb) {
+          cb(result);
+        }
+      });
+    });
+  },
   get_order_details: async (time, order_query_type, cb)=> {
     var start_time = time ? time : await MyMethod.getNowFormatDate(20);
     console.log(start_time)
