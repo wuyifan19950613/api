@@ -267,7 +267,7 @@ module.exports = function(app) {
       return res.send({});
     })
   });
-  MyMethod.pwdJx('【【6期免息】Huawei/华为nova 5 Pro超级夜景4800万AI四摄超级快充屏内指纹NFC超广角景深手机】，椱ァ製这段描述¢IWlqY71ygd1€后到◇綯℡寳[来自88VIP的分享]');
+  // MyMethod.pwdJx('【【6期免息】Huawei/华为nova 5 Pro超级夜景4800万AI四摄超级快充屏内指纹NFC超广角景深手机】，椱ァ製这段描述¢IWlqY71ygd1€后到◇綯℡寳[来自88VIP的分享]');
   // 获取订单信息
   // create_time 创建时间 settle_time 结算时间
   // MyMethod.get_order_details('2019-01-07 12:15:35', 'settle_time');

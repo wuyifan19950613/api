@@ -1,13 +1,17 @@
 const express = require('express');
 const app = express();
 let fs = require('fs-extra');
-const moment = require('moment')
+const moment = require('moment');
+var domParser=require('xmldom').DOMParser;
+var parser=new domParser();
     //导入cors模块,该模块为跨域所用
 const cors = require('cors');
 const crypto = require("crypto");
 const mongodb = require('./mongodb.js');
 const url = require('url');
 var request = require('request');
+var xml2js = require('xml2js');
+var xmlParser = new xml2js.Parser({explicitArray : false, ignoreAttrs : true})
 //解析表单的插件
 const bodyParser = require('body-parser');
 var https = require("https");
@@ -24,13 +28,18 @@ var wechatApplet = require('./modules/wechatApplet');
 var order = require('./modules/order');
 var pidArry = require('./modules/pid');
 var MyMethod = require('./modules/commonMethod');
+const fxp = require("fast-xml-parser");
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cors());
 
 const config = {
   wechat:{
-    appID:'wx26408a8b0b607e01', //填写你自己的appID
-    appSecret:'edec6e5b252b8d1cac4bc1d32b986453', //填写你自己的appSecret
+    // （测试环境）
+    appID:'wxda624b191e494671', //填写你自己的appID
+    appSecret:'a4c3278057f65937907e4e1cce31dfd6', //填写你自己的appSecret
+    // (正式环境)
+    // appID:'wx26408a8b0b607e01', //填写你自己的appID
+    // appSecret:'edec6e5b252b8d1cac4bc1d32b986453', //填写你自己的appSecret
     token:'XiaoHuanYouJuan', //填写你自己的token
     access_token: '',
   }
@@ -142,9 +151,17 @@ app.post('/api/weixin', (req, res) => {
   var token = req.query.token;
   base.Distinguish(token, (_msg)=> {
     var _da;
+    var wechatUserAappid = '';
     const resData = res;
     req.on("data",function(data){
       /*微信服务器传过来的是xml格式的，是buffer类型，因为js本身只有字符串数据类型，所以需要通过toString把xml转换为字符串*/
+      xmlParser.parseString(data, function (err, result) {
+        //将返回的结果再次格式化
+        wechatUserAappid = result.xml.FromUserName;
+        mongodb.updateMany('weChatUsers', {"openid": wechatUserAappid}, {"openid": wechatUserAappid, pid: "91252550279"}, (err, msg)=> {
+        })
+        //  用户openId
+      });
       _da = data.toString("utf-8");
     });
     req.on("end",function(){
@@ -159,6 +176,9 @@ app.post('/api/weixin', (req, res) => {
         CreateTime: getXMLNodeValue('CreateTime',_da),
         MsgType: getXMLNodeValue('MsgType',_da),
       }
+      
+      
+
       if(JSON.stringify(_msg) == '[]'){
         var html ='';
         html +='<xml>';
@@ -184,7 +204,29 @@ app.post('/api/weixin', (req, res) => {
           recProcess(Wxcofig, resData, site_name);
           return false;
         }
+        if (text == '立即体现') {
+          var html ='';
+          html +='<xml>';
+          html +='<ToUserName>'+Wxcofig.FromUserName+'</ToUserName>';
+          html +='<FromUserName>'+Wxcofig.ToUserName+'</FromUserName>';
+          html +='<CreateTime>'+Wxcofig.CreateTime+'</CreateTime>';
+          html +='<MsgType>'+Wxcofig.MsgType+'</MsgType> ';
+          html +=`<Content>点击下方【领取红包】扫描二维码</Content>`;
+          html +='</xml>';
+          return resData.send(html);
+        }
 
+        // if (text == '余额') {
+        //   var html ='';
+        //   html +='<xml>';
+        //   html +='<ToUserName>'+Wxcofig.FromUserName+'</ToUserName>';
+        //   html +='<FromUserName>'+Wxcofig.ToUserName+'</FromUserName>';
+        //   html +='<CreateTime>'+Wxcofig.CreateTime+'</CreateTime>';
+        //   html +='<MsgType>'+Wxcofig.MsgType+'</MsgType> ';
+        //   html +=`<Content>订单总数：0 笔\r\n未收货数：0 笔\r\n当前余额：0 元\r\n正在提现：0 元\r\n总共提现：0 元</Content>`;
+        //   html +='</xml>';
+        //   return resData.send(html);
+        // }
         // 如果带有链接
         if(text.indexOf('https') != -1){
           // 如果连接带有id就直接获取id
@@ -193,6 +235,11 @@ app.post('/api/weixin', (req, res) => {
             wechatOutReply(id, Wxcofig, resData, Rebate, pid);
             return false;
           }
+
+          var url = text.substring(text.indexOf('https:'), text.indexOf('点击链接'));
+          MyMethod.dismantlID(url,(id)=> {
+            wechatOutReply(id,Wxcofig ,resData, Rebate, pid);
+          })
         } else if (text.indexOf('这段描述') != -1) {
           MyMethod.pwdJx(text, (result)=> {
             var result = JSON.parse(result);
