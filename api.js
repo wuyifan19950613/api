@@ -27,10 +27,13 @@ var shoppingcart = require('./modules/localInterface');
 var wechatApplet = require('./modules/wechatApplet');
 var order = require('./modules/order');
 var pidArry = require('./modules/pid');
+var baidu_api = require('./modules/baidu_api');
 var MyMethod = require('./modules/commonMethod');
 const fxp = require("fast-xml-parser");
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cors());
+
+
 
 const config = {
   wechat:{
@@ -71,10 +74,19 @@ function recProcess(Wxcofig, resData, site_name) {
   html +='</xml>';
   return resData.send(html);
 }
+app.all('*', function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "X-Requested-With");
+  res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
+  res.header("X-Powered-By", ' 3.2.1');
+  // res.header("Content-Type", "application/json;charset=utf-8");
+  next();
+});
 shoppingcart(app);
 wechatApplet(app);
 order(app);
 pidArry(app);
+baidu_api(app);
 // http://wuyifan.free.idcfengye.com
 // 微信机器人自动回复
 app.get('/api/wechatRobot', (req, res)=> {
