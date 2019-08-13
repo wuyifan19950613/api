@@ -18,6 +18,7 @@ module.exports = function(app) {
         var form = new multiparty.Form();
         form.parse(req, function (err, fields, files) {
             var file = {};
+            console.log(fields)
             for (var i in files) {
                 file = files[i][0];
             }
