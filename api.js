@@ -38,11 +38,11 @@ app.use(cors());
 const config = {
   wechat:{
     // （测试环境）
-    appID:'wxda624b191e494671', //填写你自己的appID
-    appSecret:'a4c3278057f65937907e4e1cce31dfd6', //填写你自己的appSecret
+    // appID:'wxda624b191e494671', //填写你自己的appID
+    // appSecret:'a4c3278057f65937907e4e1cce31dfd6', //填写你自己的appSecret
     // (正式环境)
-    // appID:'wx26408a8b0b607e01', //填写你自己的appID
-    // appSecret:'edec6e5b252b8d1cac4bc1d32b986453', //填写你自己的appSecret
+    appID:'wx26408a8b0b607e01', //填写你自己的appID
+    appSecret:'edec6e5b252b8d1cac4bc1d32b986453', //填写你自己的appSecret
     token:'XiaoHuanYouJuan', //填写你自己的token
     access_token: '',
   }
@@ -240,19 +240,20 @@ app.post('/api/weixin', (req, res) => {
         //   return resData.send(html);
         // }
         // 如果带有链接
-        if(text.indexOf('https') != -1){
-          // 如果连接带有id就直接获取id
-          if(text.indexOf('?id') != -1){
-            const id = base.getUrlParam(text);
-            wechatOutReply(id, Wxcofig, resData, Rebate, pid);
-            return false;
-          }
+        // if(text.indexOf('https') != -1){
+        //   // 如果连接带有id就直接获取id
+        //   if(text.indexOf('?id') != -1){
+        //     const id = base.getUrlParam(text);
+        //     wechatOutReply(id, Wxcofig, resData, Rebate, pid);
+        //     return false;
+        //   }
 
-          var url = text.substring(text.indexOf('https:'), text.indexOf('点击链接'));
-          MyMethod.dismantlID(url,(id)=> {
-            wechatOutReply(id,Wxcofig ,resData, Rebate, pid);
-          })
-        } else if (text.indexOf('这段描述') != -1) {
+        //   var url = text.substring(text.indexOf('https:'), text.indexOf('点击链接'));
+        //   MyMethod.dismantlID(url,(id)=> {
+        //     wechatOutReply(id,Wxcofig ,resData, Rebate, pid);
+        //   })
+        // } else 
+        if (text.indexOf('这段描述') != -1) {
           MyMethod.pwdJx(text, (result)=> {
             var result = JSON.parse(result);
             if (result.code == 200) {
