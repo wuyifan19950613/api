@@ -38,11 +38,11 @@ app.use(cors());
 const config = {
   wechat:{
     // （测试环境）
-    // appID:'wxda624b191e494671', //填写你自己的appID
-    // appSecret:'a4c3278057f65937907e4e1cce31dfd6', //填写你自己的appSecret
+    appID:'wxda624b191e494671', //填写你自己的appID
+    appSecret:'a4c3278057f65937907e4e1cce31dfd6', //填写你自己的appSecret
     // (正式环境)
-    appID:'wx26408a8b0b607e01', //填写你自己的appID
-    appSecret:'edec6e5b252b8d1cac4bc1d32b986453', //填写你自己的appSecret
+    // appID:'wx26408a8b0b607e01', //填写你自己的appID
+    // appSecret:'edec6e5b252b8d1cac4bc1d32b986453', //填写你自己的appSecret
     token:'XiaoHuanYouJuan', //填写你自己的token
     access_token: '',
   }
@@ -185,7 +185,7 @@ app.post('/api/weixin', (req, res) => {
         wechatUserAappid = result.xml.FromUserName;
         mongodb.updateMany('weChatUsers', {"openid": wechatUserAappid}, {"openid": wechatUserAappid, pid: "91252550279"}, (err, msg)=> {
         })
-        //  用户openId
+        //  用户openId 
       });
       _da = data.toString("utf-8");
     });
@@ -368,6 +368,7 @@ function wechatOutReply(id, Wxcofig, resData, Rebate, pid) {
     'q': `${taobaoUrl}`,
   }, function(err, msg) {
     console.log(err);
+    console.log(msg);
     if (err) {
       var html ='';
       html +='<xml>';
@@ -392,21 +393,18 @@ function wechatOutReply(id, Wxcofig, resData, Rebate, pid) {
       mongodb.updateMany('product_list',{item_id:map_data.item_id}, map_data,(err, response)=>{
       })
       var short_links = 'http://www.xiaohuanzi.cn/shopDetail?item_id='+parseInt(id);
-      var trans_url = 'http://api.t.sina.com.cn/short_url/shorten.json?source=2815391962&url_long='+url_encode(short_links);
+      var trans_url = 'http://api.3w.cn/api.htm?url='+ short_links +'&key=5d88412d5a482c392b471ed8@a9f82d5cefab53b4a302a9a1408b5387';
       var redenvelopes = Math.floor((Math.floor((map_data.commission_rate / 100).toFixed(2) * (map_data.zk_final_price - map_data.coupon_amount)) / 100) * Number(Rebate) * 100) / 100;
       request(trans_url, (err, res, body)=> {
-        if (!err && res.statusCode == 200) {
           var html ='';
-           duanUrl = JSON.parse(body)[0].url_short;
            html +='<xml>';
            html +='<ToUserName>'+Wxcofig.FromUserName+'</ToUserName>';
            html +='<FromUserName>'+Wxcofig.ToUserName+'</FromUserName>';
            html +='<CreateTime>'+Wxcofig.CreateTime+'</CreateTime>';
            html +='<MsgType>'+Wxcofig.MsgType+'</MsgType> ';
-           html +=`<Content>兄dei，${map_data.title}\r\n\r\n现售价：${map_data.zk_final_price}元\r\n优惠券：${map_data.coupon_amount}元\r\n返红包：${redenvelopes}元\r\n\r\n点击购买☛${duanUrl}</Content>`;
+           html +=`<Content>兄dei，${map_data.title}\r\n\r\n现售价：${map_data.zk_final_price}元\r\n优惠券：${map_data.coupon_amount}元\r\n返红包：${redenvelopes}元\r\n\r\n点击购买☛${body}</Content>`;
            html +='</xml>';
            return resData.send(html);
-         }
        });
     }
   })
