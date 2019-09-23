@@ -156,6 +156,18 @@ app.get('/api/smallProgram', (req, res)=> {
         return res.send({code: 200,message:{id: result.data},});
       } 
     })
+  } else  if(text.indexOf('https') != -1){
+    // 如果连接带有id就直接获取id
+    if(text.indexOf('?id') != -1){
+      const id = base.getUrlParam(text);
+
+      return res.send({code: 200,message:{id: id},});
+    }else {
+      var url = text.substring(text.indexOf('https:'), text.indexOf('点击链接'));
+      MyMethod.dismantlID(url,(id)=> {
+        return res.send({code: 200,message:{id: id},});
+      })
+    }
   } else {
     return res.send({code :201, message:'未发现商品'})
   }
@@ -270,6 +282,17 @@ app.post('/api/weixin', (req, res) => {
                   html +='</xml>';
                   return resData.send(html);
             }
+          })
+        }  else if(text.indexOf('https') != -1){
+          // 如果连接带有id就直接获取id
+          if(text.indexOf('?id') != -1){
+            const id = base.getUrlParam(text);
+            wechatOutReply(id, Wxcofig, resData, Rebate, pid);
+            return false;
+          }
+          var url = text.substring(text.indexOf('https:'), text.indexOf('点击链接'));
+          MyMethod.dismantlID(url,(id)=> {
+            wechatOutReply(id,Wxcofig ,resData, Rebate, pid);
           })
         } else{
           // var short_links = 'http://www.xiaohuanzi.cn/search?searchName='+text;
