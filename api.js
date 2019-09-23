@@ -38,11 +38,11 @@ app.use(cors());
 const config = {
   wechat:{
     // （测试环境）
-    appID:'wxda624b191e494671', //填写你自己的appID
-    appSecret:'a4c3278057f65937907e4e1cce31dfd6', //填写你自己的appSecret
+    // appID:'wxda624b191e494671', //填写你自己的appID
+    // appSecret:'a4c3278057f65937907e4e1cce31dfd6', //填写你自己的appSecret
     // (正式环境)
-    // appID:'wx26408a8b0b607e01', //填写你自己的appID
-    // appSecret:'edec6e5b252b8d1cac4bc1d32b986453', //填写你自己的appSecret
+    appID:'wx26408a8b0b607e01', //填写你自己的appID
+    appSecret:'edec6e5b252b8d1cac4bc1d32b986453', //填写你自己的appSecret
     token:'XiaoHuanYouJuan', //填写你自己的token
     access_token: '',
   }
