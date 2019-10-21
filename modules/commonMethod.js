@@ -82,7 +82,7 @@ var MyMethod = {
     return currentdate;
   },
   pwdJx: async (content, cb)=> {
-    await https.get('https://api.open.21ds.cn/apiv1/tpwdtoid?apkey=112fc905-6a56-c1b7-737d-8a890f2db1e1&&tpwd='+encodeURIComponent(content), (res)=> {
+    await https.get('https://api.open.21ds.cn/apiv2/tpwdtoid?apkey=112fc905-6a56-c1b7-737d-8a890f2db1e1&&tpwd='+encodeURIComponent(content), (res)=> {
       var datas = [];
       var size = 0;
       res.on('data', function (data) {
