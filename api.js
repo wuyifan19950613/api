@@ -390,17 +390,17 @@ function wechatOutReply(id, Wxcofig, resData, Rebate, pid) {
       var short_links = 'http://www.xiaohuanzi.cn/shopDetail?item_id='+parseInt(id);
       var trans_url = 'http://api.3w.cn/api.htm?url='+ short_links +'&key=5d88412d5a482c392b471ed8@a9f82d5cefab53b4a302a9a1408b5387';
       var redenvelopes = Math.floor((Math.floor((map_data.commission_rate / 100).toFixed(2) * (map_data.zk_final_price - map_data.coupon_amount)) / 100) * Number(Rebate) * 100) / 100;
-      request(trans_url, (err, res, body)=> {
+      // request(trans_url, (err, res, body)=> {
           var html ='';
            html +='<xml>';
            html +='<ToUserName>'+Wxcofig.FromUserName+'</ToUserName>';
            html +='<FromUserName>'+Wxcofig.ToUserName+'</FromUserName>';
            html +='<CreateTime>'+Wxcofig.CreateTime+'</CreateTime>';
            html +='<MsgType>'+Wxcofig.MsgType+'</MsgType> ';
-           html +=`<Content>兄dei，${map_data.title}\r\n\r\n现售价：${map_data.zk_final_price}元\r\n优惠券：${map_data.coupon_amount}元\r\n返红包：${redenvelopes}元\r\n\r\n点击购买☛${body}</Content>`;
+           html +=`<Content>兄dei，${map_data.title}\r\n\r\n现售价：${map_data.zk_final_price}元\r\n优惠券：${map_data.coupon_amount}元\r\n返红包：${redenvelopes}元\r\n\r\n点击购买☛${short_links}</Content>`;
            html +='</xml>';
            return resData.send(html);
-       });
+      //  });
     }
   })
 }
