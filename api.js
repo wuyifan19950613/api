@@ -148,10 +148,7 @@ app.get('/api/smallProgram', (req, res)=> {
   
         return res.send({code: 200,message:{id: id},});
       }else {
-        var url = text.substring(text.indexOf('https:'), text.indexOf('嚸↑↓擊鏈﹏接'));
-        MyMethod.dismantlID(url,(id)=> {
-          return res.send({code: 200,message:{id: id},});
-        })
+        return res.send({code :201, message:'未发现商品'})
       }
     } else {
       return res.send({code :201, message:'未发现商品'})
@@ -282,11 +279,18 @@ app.post('/api/weixin', (req, res) => {
                 const id = base.getUrlParam(text);
                 wechatOutReply(id, Wxcofig, resData, Rebate, pid);
                 return false;
+              } else {
+                var html ='';
+            //      duanUrl = JSON.parse(body)[0].url_short;
+                  html +='<xml>';
+                  html +='<ToUserName>'+Wxcofig.FromUserName+'</ToUserName>';
+                  html +='<FromUserName>'+Wxcofig.ToUserName+'</FromUserName>';
+                  html +='<CreateTime>'+Wxcofig.CreateTime+'</CreateTime>';
+                  html +='<MsgType>'+Wxcofig.MsgType+'</MsgType> ';
+                  html +=`<Content>很抱歉，该宝贝暂时无优惠，试试其它宝贝吧~</Content>`;
+                  html +='</xml>';
+                  return resData.send(html);
               }
-              var url = text.substring(text.indexOf('https:'), text.indexOf('嚸↑↓擊鏈﹏接'));
-              MyMethod.dismantlID(url,(id)=> {
-                wechatOutReply(id,Wxcofig ,resData, Rebate, pid);
-              })
             } else{
               // var short_links = 'http://www.xiaohuanzi.cn/search?searchName='+text;
               // var trans_url = 'http://api.t.sina.com.cn/short_url/shorten.json?source=2815391962&url_long='+url_encode(short_links);
