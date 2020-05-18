@@ -765,6 +765,7 @@ app.get('/api/vaguefind/Commodity', (req, res) => {
  const apiKey = [
    'ppEbSS1F8zguszw33EWQpZs8',
    'iyAxCKjqkYyCuQnNDAAXRSL3',
+   'DhTypBWELAtyqXNjosXhwbjs',
  ]
  let keyIndex = 0;
 // Ai抠图
@@ -806,6 +807,18 @@ app.post('/ai/removebg', (req, res)=> {
     
   })
   
+});
+
+app.get('/ai/account', (req, res)=> {
+  request.get({
+    url: 'https://api.remove.bg/v1.0/account',
+    headers: {
+      'X-Api-Key': apiKey[keyIndex],
+    },
+  }, function(error, response, body) {
+    if(error) return console.error('Request failed:', error);
+    console.log(response)
+  })
 })
 
 
