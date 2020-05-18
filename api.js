@@ -791,6 +791,7 @@ app.post('/ai/removebg', (req, res)=> {
         },
         encoding: null
       }, function(error, response, body2) {
+        console.log(error)
         if(error) return console.error('Request failed:', error);
         if(response.statusCode != 200) {
           if (response.statusCode == 402) {
