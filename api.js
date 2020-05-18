@@ -762,6 +762,11 @@ app.get('/api/vaguefind/Commodity', (req, res) => {
   });
 });
 
+ const apiKey = [
+   'ppEbSS1F8zguszw33EWQpZs8',
+   'iyAxCKjqkYyCuQnNDAAXRSL3',
+ ]
+ let keyIndex = 0;
 // Ai抠图
 app.post('/ai/removebg', (req, res)=> {
   let body = "";
@@ -770,26 +775,37 @@ app.post('/ai/removebg', (req, res)=> {
   });
   req.on('end', () => {
     body = JSON.parse(body);
-    console.log(body)
-    request.post({
-      url: 'https://api.remove.bg/v1.0/removebg',
-      formData: {
-        image_file_b64: body.image_file_b64 ? body.image_file_b64 : '',
-        image_url: body.image_url ? body.image_url : '',
-        size: 'auto',
-      },
-      headers: {
-        'X-Api-Key': 'ppEbSS1F8zguszw33EWQpZs8'
-      },
-      encoding: null
-    }, function(error, response, body) {
-      if(error) return console.error('Request failed:', error);
-      if(response.statusCode != 200) {
-        return res.status(response.statusCode).send({data:body.toString('utf-8')});
-      } else {
-        return res.status(response.statusCode).send({data: body.toString('base64'),})
-      }
-    });
+    removebgHttp(body);
+    function removebgHttp(body) {
+      console.log(keyIndex)
+      request.post({
+        url: 'https://api.remove.bg/v1.0/removebg',
+        formData: {
+          image_file_b64: body.image_file_b64 ? body.image_file_b64 : '',
+          image_url: body.image_url ? body.image_url : '',
+          size: 'auto',
+        },
+        headers: {
+          'X-Api-Key': apiKey[keyIndex],
+        },
+        encoding: null
+      }, function(error, response, body2) {
+        if(error) return console.error('Request failed:', error);
+        if(response.statusCode != 200) {
+          const code = JSON.parse(body2.toString('utf-8')).errors[0].code;
+          console.log(code)
+          if (code == 'insufficient_credits') {
+            keyIndex = keyIndex + 1;
+            removebgHttp(body);
+          } else {
+            return res.status(response.statusCode).send({data:body2.toString('utf-8')});
+          }
+        } else {
+          return res.status(response.statusCode).send({data: body2.toString('base64'),})
+        }
+      });
+    }
+    
   })
   
 })
