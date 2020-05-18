@@ -778,7 +778,7 @@ app.post('/ai/removebg', (req, res)=> {
     body = JSON.parse(body);
     removebgHttp(body);
     function removebgHttp(body) {
-      console.log(keyIndex)
+      console.log(body)
       request.post({
         url: 'https://api.remove.bg/v1.0/removebg',
         formData: {
