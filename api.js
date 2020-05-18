@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-let fs = require('fs-extra');
+let fs = require('fs');
 const moment = require('moment');
 var domParser=require('xmldom').DOMParser;
 var parser=new domParser();
@@ -761,6 +761,42 @@ app.get('/api/vaguefind/Commodity', (req, res) => {
     }
   });
 });
+
+// Ai抠图
+app.post('/ai/removebg', (req, res)=> {
+  let body = "";
+  req.on('data', (chunk) => {
+    body += chunk;
+  });
+  req.on('end', () => {
+    body = JSON.parse(body);
+    console.log(body)
+    request.post({
+      url: 'https://api.remove.bg/v1.0/removebg',
+      formData: {
+        image_file_b64: body.image_file_b64 ? body.image_file_b64 : '',
+        image_url: body.image_url ? body.image_url : '',
+        size: 'auto',
+      },
+      headers: {
+        'X-Api-Key': 'ppEbSS1F8zguszw33EWQpZs8'
+      },
+      encoding: null
+    }, function(error, response, body) {
+      if(error) return console.error('Request failed:', error);
+      if(response.statusCode != 200) {
+        return res.status(response.statusCode).send({data:body.toString('utf-8')});
+      } else {
+        return res.status(response.statusCode).send({data: body.toString('base64'),})
+      }
+    });
+  })
+  
+})
+
+
+
+
 app.listen(3000,'0.0.0.0',() => {
     console.log('服务启动成功');
 })
