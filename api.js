@@ -792,9 +792,7 @@ app.post('/ai/removebg', (req, res)=> {
       }, function(error, response, body2) {
         if(error) return console.error('Request failed:', error);
         if(response.statusCode != 200) {
-          const code = JSON.parse(body2.toString('utf-8')).errors[0].code;
-          console.log(code)
-          if (code == 'insufficient_credits') {
+          if (response.statusCode == 402) {
             keyIndex = keyIndex + 1;
             removebgHttp(body);
           } else {
