@@ -763,9 +763,9 @@ app.get('/api/vaguefind/Commodity', (req, res) => {
 });
 
  const apiKey = [
+   'DhTypBWELAtyqXNjosXhwbjs',
    'ppEbSS1F8zguszw33EWQpZs8',
    'iyAxCKjqkYyCuQnNDAAXRSL3',
-   'DhTypBWELAtyqXNjosXhwbjs',
  ]
  let keyIndex = 0;
 // Ai抠图
